@@ -1,0 +1,112 @@
+  Eye textures live inside the shader binary, not in any material. The full chain:      
+                                                  
+  barM_P00.app (Appearance)                                                             
+    └─ ptAppearanceMaterials[6].ptSOAs[].snoMaterial = global_eyeball_mat (sno 677171)  
+                                                                                        
+  global_eyeball_mat.mat (Material, sno 677171)                                         
+    ├─ ptMatTexList: EMPTY (0 entries)                                                  
+    ├─ ptRunTimeMaterialValues: EMPTY (0 blocks)                                        
+    └─ snoShaderMap: Hero_Eye                                                           
+
+  Hero_Eye.shd (Shader, group 37) ← textures bound HERE, not through Material
+    ├─ HARDCODED textures (8 in total):
+    │     base_eyes_irisColor          (iris ramp; tinted at runtime by uniforms)
+    │     base_eyes_irisMask            (iris pattern)
+    │     base_eyes_sclera              (sclera base)
+    │     base_eyes_sclera_red          (bloodshot variant)
+    │     base_eyes_irisShadowRamp      (limbus shadow LUT)
+    │     BaseEye_Normal                (eye normal map)
+    │     SphericalNormal               (additional spherical-normal contribution)
+    │     solid_black                   (fallback)
+    └─ MaterialValue uniforms read at draw time:
+          Iris Inner Color Left/Right
+          Iris Outer Color Left/Right
+          Pupil Size Left/Right
+          Iris Emissive Strength Left/Right
+          Iris Emissive Strength Blinking Intensity / Speed
+          Eye Sclera Tint Color Left/Right
+
+  Where the per-character values come from — the EyeColor SNO group (own group, dir
+  base/meta/EyeColor/):
+
+  EyeColor presets (18 found): "Black", "Blue Dark/Light/Medium",
+    "Brown Dark/Light/Medium", "Crystal", "Green Dark/Light/Medium/Incandescent",
+    "Purple Incandescent", "Teal", "Vampire Red", "White Incandescent",
+    "Yellow Incandescent"
+
+  Brown Medium.eye.json contents (988 bytes, fully parametric — NO texture refs):
+    rgbaIrisInner    = (221, 147, 76, 255)   ← becomes "Iris Inner Color Left"
+    rgbaIrisOuter    = (167, 95, 53, 255)    ← becomes "Iris Outer Color Left"
+    rgbaUIDisplayColor = (142, 73, 22, 255)  ← UI swatch in char creator
+    flIrisBrightness = 2.0
+    flIrisRotation   = 45.0
+    flIrisRoughness  = 0.10
+    flIrisShadowIntensity   = 0.05
+    flIrisEmissiveStrength  = 1.0
+    flLimbusBlur     = 0.82
+    flLimbusBrightness = 0.047
+    flLimbusThickness  = 0.86
+    flPupilSize      = 2.81
+    flScleraRednessAmount = 0.10
+    flScleraRednessRotation = 180
+    flScleraBrightness = 0.60
+    flScleraRoughness  = 0.20
+    flScleraEmissiveStrength = 0
+    fUsableByClass   = [1,1,1,1,1,1,1,1]   ← per-class availability flags
+    snoEmissiveMask  = null                ← optional override
+
+  The cross-references confirm:
+
+  - grep "677171" across Actor / AppearanceSet / EyeColor / Customization / PlayerClass:
+   0 hits — nothing else references global_eyeball_mat. The material is bound only via
+  the appearance file.
+  - barbarianM.acr.json (player actor): arCustomizationAppearances=[],
+  arAppearanceSets=[BarbM_Armor], tDefaultLook empty. No customization data here either.
+  - Barbarian.pcl.json (PlayerClass) — references all customization presets via field
+  arCompleteLooks, with these SNO groups:
+    - Group 131 = EyeColor (samples: Black, Blue Light, Blue Medium, Brown Dark,
+  Crystal, Green Light)
+    - Group 132 = Face SkinTone (00, 01, 02, 08, 10_Gothic)
+    - Group 133 = MarkingColor (Blue Paint, Fresh Blood, Henna, Inked Tattoo, Yellow)
+    - Group 134 = HairColor (002DarkBrown, 011SlushWhite, 013Gray, 016Black,
+  018AuburnRed)
+    - Group 138 = HairStyle (H02_Square, H03_ShortForwardFringe, ...)
+    - Group 139 = FacialHair (Bushy_LongBeard, Clean, Narrow_Beard, Thick_FullBeard)
+    - Group 140 = Face shape (African, Asian, Caucasian, Persian)
+
+  (Note: Barbarian.pcl.json had arCompleteLooks=[] in the dump but earlier scan caught
+  the EyeColor refs inside the file via group 131; the field that holds them is
+  arCompleteLooks.)
+
+  Why our exporter sees an empty eye material: The chain AppearanceMaterial →
+  SubObjectAppearance → snoMaterial → MaterialDefinition → tUberMaterial → ptMatTexList
+  is the only path our material_parser walks. For Hero_Eye textures it reaches
+  global_eyeball_mat and finds an empty ptMatTexList. The textures are bound one level
+  deeper, in the Hero_Eye.shd shader file's hardcoded sampler bindings — that's outside
+  the standard material chain.
+
+  Implementation options for glTF export
+
+  Three plausible approaches if you want eyes textured:
+
+  1. Static base-eye textures with default tint (simple): hardcode-embed the 8
+  base_eyes_* textures whenever shader_map == "Hero_Eye", ship them as the eyeball's
+  BASE_COLOR + NORMAL. The result is generic blue eyes (since base_eyes_irisColor is
+  grayscale and we'd skip the iris-color tint). Crude but functional.
+  2. EyeColor-preset baking (more involved): pick an EyeColor preset (e.g. Brown
+  Medium), composite base_eyes_irisColor × rgbaIrisInner + sclera + iris mask + limbus
+  into a single 1024×1024 RGBA image at export time, embed as the eyeball's BASE_COLOR.
+  Needs a small compositor.
+  3. Set baseColorFactor from preset only (current Lilith approach): pick a preset and
+  use its rgbaIrisInner directly as the eyeball material's baseColorFactor. No texture,
+  but at least the eye colour roughly matches the preset. Same shape as our
+  Iris_InnerColor_Eye fallback for Lilith — just keyed on the EyeColor SNO group instead
+   of ptRunTimeMaterialValues.
+
+  Option 3 is the smallest change and aligns with the precedent we set for Lilith.
+  Option 1 gives more fidelity at the cost of always-blue eyes for everyone. Option 2 is
+   the proper fix but requires a small shader-emulation pass.
+
+  For now I'd leave eyeball materials at white (the current behaviour) and revisit when
+  you want player-character exports to look complete — at that point Option 3 is one
+  extra --eye-color-preset Brown\ Medium CLI flag away.

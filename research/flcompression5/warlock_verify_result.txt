@@ -1,0 +1,9 @@
+warM_2HS_attk_flamingSkull_phase p1: ptScaleCurves length 0 != nBoneCount 190
+warM_2HS_attk_flamingSkull_phase p2: ptScaleCurves length 0 != nBoneCount 190
+warM_* animations with a comp=5 permutation: 60
+extracted payloads for 60/60 animations
+
+permutations decoded:   141/141
+permutations by mode:   {3: 33, 5: 108}
+
+NO DECODE FAILURES — every warM comp=5 permutation decoded.

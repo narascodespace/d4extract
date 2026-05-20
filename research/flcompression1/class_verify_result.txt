@@ -1,0 +1,24 @@
+
+======================================================================
+barM: 1 comp1/2/4/6 anims, 25 long-form (>255f) anims
+======================================================================
+  comp=1/2/4/6 permutations: 1 decoded OK, 0 failed
+  long-form permutations: 28 raised the clean long-form guard, 0 other
+
+======================================================================
+warM: 1 comp1/2/4/6 anims, 9 long-form (>255f) anims
+======================================================================
+  comp=1/2/4/6 permutations: 1 decoded OK, 0 failed
+  long-form permutations: 13 raised the clean long-form guard, 0 other
+
+======================================================================
+spiM: 0 comp1/2/4/6 anims, 2 long-form (>255f) anims
+======================================================================
+  comp=1/2/4/6 permutations: 0 decoded OK, 0 failed
+  long-form permutations: 2 raised the clean long-form guard, 0 other
+
+======================================================================
+spiF: 8 comp1/2/4/6 anims, 7 long-form (>255f) anims
+======================================================================
+  comp=1/2/4/6 permutations: 15 decoded OK, 0 failed
+  long-form permutations: 9 raised the clean long-form guard, 0 other

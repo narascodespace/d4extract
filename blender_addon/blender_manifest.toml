@@ -1,0 +1,23 @@
+schema_version = "1.0.0"
+
+id = "d4extract_blender"
+version = "0.1.0"
+name = "D4Extract Importer"
+tagline = "Import and tune Diablo IV models exported by d4extract"
+maintainer = "diablo4analyzer"
+type = "add-on"
+
+# surface_render_method (dithered alpha) requires Blender 4.2+.
+blender_version_min = "4.2.0"
+
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+
+tags = [
+  "Import-Export",
+  "Material",
+]
+
+[permissions]
+files = "Import .glb models and read/write their .materials.json sidecars"

@@ -1,0 +1,703 @@
+# flCompression=5 analysis â€” captured output
+# Regenerate: python research/flcompression5/{analyze,probe,valuetest,hexdump}.py
+
+==== analyze.py ====
+==============================================================================
+flCompression=5 RESEARCH — payload analysis
+==============================================================================
+
+### warM_2HS_attk_weaponAttack  (2 permutation(s), payload 71108B)
+  p0: comp=5 bones=190 frames=53 payload_off=32
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=     1000 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=     1760 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=    13312 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=    35448 size=   3040 (190x16B)
+      curve bytes: T=8420 R=18796 S=288 total=27504  bytes/bone/frame=2.731
+  p1: comp=5 bones=190 frames=53 payload_off=38696
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=     1000 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=    38904 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=    48032 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=    67976 size=   3040 (190x16B)
+      curve bytes: T=8312 R=18232 S=264 total=26808  bytes/bone/frame=2.662
+
+### warM_1hsOh_attk_weaponAttack  (2 permutation(s), payload 84584B)
+  p0: comp=5 bones=190 frames=53 payload_off=32
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=     1000 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=     1760 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=    17112 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=    45352 size=   3040 (190x16B)
+      curve bytes: T=12112 R=25208 S=612 total=37932  bytes/bone/frame=3.767
+  p1: comp=5 bones=190 frames=53 payload_off=48784
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=     1000 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=    48992 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=    59456 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=    81344 size=   3040 (190x16B)
+      curve bytes: T=8384 R=19064 S=288 total=27736  bytes/bone/frame=2.754
+
+### warM_demonForm_nav_runStop  (1 permutation(s), payload 40640B)
+  p0: comp=5 bones=190 frames=60 payload_off=32
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=     1000 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=     1760 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=    14808 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=    37040 size=   3040 (190x16B)
+      curve bytes: T=9844 R=19024 S=872 total=29740  bytes/bone/frame=2.609
+
+### warM_2HM_attk_apocalypse  (5 permutation(s), payload 190580B)
+  p0: comp=5 bones=190 frames=97 payload_off=32
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=     1000 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=     1760 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=    18072 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=    56496 size=   3040 (190x16B)
+      curve bytes: T=13160 R=35092 S=364 total=48616  bytes/bone/frame=2.638
+  p1: comp=5 bones=190 frames=16 payload_off=59824
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=     1000 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=    60032 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=    67224 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=    76752 size=   3040 (190x16B)
+      curve bytes: T=6136 R=7556 S=336 total=14028  bytes/bone/frame=4.614
+  p2: comp=3 bones=190 frames=23 payload_off=79872
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=    80080 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=    80840 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=    87736 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=    99768 size=   3040 (190x16B)
+      curve bytes: T=5952 R=10280 S=208 total=16440  bytes/bone/frame=3.762
+  p3: comp=3 bones=190 frames=49 payload_off=102824
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=    80080 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=   103032 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=   115552 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=   138200 size=   3040 (190x16B)
+      curve bytes: T=11656 R=20860 S=312 total=32828  bytes/bone/frame=3.526
+  p4: comp=5 bones=190 frames=66 payload_off=141312
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=     1000 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=   141520 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=   159504 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=   186952 size=   3040 (190x16B)
+      curve bytes: T=15628 R=24960 S=1068 total=41656  bytes/bone/frame=3.322
+
+### warM_1HS_attk_SigilOfFlames  (1 permutation(s), payload 56432B)
+  p0: comp=5 bones=190 frames=59 payload_off=32
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=     1000 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=     1760 size=    708 (59x12B)
+      [ 4] unk_5cd81c8          off=     2472 size=    708 (59x12B)
+      [ 5] unk_fa7ecfb          off=     2472 size=    708 (59x12B)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=     3184 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=    20040 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=    52200 size=   3040 (190x16B)
+      curve bytes: T=13684 R=29292 S=1528 total=44504  bytes/bone/frame=3.970
+
+### barM_HTH_nav_idle  (3 permutation(s), payload 84684B)
+  p0: comp=3 bones=190 frames=61 payload_off=32
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=     1000 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=     1760 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=     8960 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=    24120 size=   3040 (190x16B)
+      curve bytes: T=4156 R=12540 S=548 total=17244  bytes/bone/frame=1.488
+  p1: comp=3 bones=190 frames=121 payload_off=27712
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=     1000 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=    27920 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=    33080 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=    58976 size=   3040 (190x16B)
+      curve bytes: T=4668 R=23996 S=1084 total=29748  bytes/bone/frame=1.294
+  p2: comp=3 bones=190 frames=121 payload_off=63104
+      [ 0] ptBoneNames          off=      240 size=    760 (190x4B)
+      [ 1] unk_a9ead38          off=     1000 size=    760 (190x4B)
+      [ 2] unk_8c9e18f          off=        0 size=      0 (0x4B)  (empty)
+      [ 3] pwvNonlinearOffset   off=        0 size=      0 (0x12B)  (empty)
+      [ 4] unk_5cd81c8          off=        0 size=      0 (0x12B)  (empty)
+      [ 5] unk_fa7ecfb          off=        0 size=      0 (0x12B)  (empty)
+      [ 6] pflFacingYaw         off=        0 size=      0 (0x4B)  (empty)
+      [ 7] pflRootScale         off=        0 size=      0 (0x4B)  (empty)
+      [ 8] unk_7c60205          off=        0 size=      0 (0x4B)  (empty)
+      [ 9] ptDepthOfField       off=        0 size=      0 (0x8B)  (empty)
+      [10] ptTranslationCurves  off=    63312 size=   3040 (190x16B)
+      [11] ptRotationCurves     off=    67216 size=   3040 (190x16B)
+      [12] ptScaleCurves        off=    58976 size=   3040 (190x16B)
+      curve bytes: T=4664 R=26056 S=1084 total=31804  bytes/bone/frame=1.383
+
+==============================================================================
+BYTE-COUNT COMPARISON TABLE
+==============================================================================
+File                               comp bones frames        T        R      S b/bone/frame
+------------------------------------------------------------------------------------------
+warM_2HS_attk_weaponAttack p0         5   190     53     8420    18796    288        2.731
+warM_2HS_attk_weaponAttack p1         5   190     53     8312    18232    264        2.662
+warM_1hsOh_attk_weaponAttack p0       5   190     53    12112    25208    612        3.767
+warM_1hsOh_attk_weaponAttack p1       5   190     53     8384    19064    288        2.754
+warM_demonForm_nav_runStop p0         5   190     60     9844    19024    872        2.609
+warM_2HM_attk_apocalypse p0           5   190     97    13160    35092    364        2.638
+warM_2HM_attk_apocalypse p1           5   190     16     6136     7556    336        4.614
+warM_2HM_attk_apocalypse p2           3   190     23     5952    10280    208        3.762
+warM_2HM_attk_apocalypse p3           3   190     49    11656    20860    312        3.526
+warM_2HM_attk_apocalypse p4           5   190     66    15628    24960   1068        3.322
+warM_1HS_attk_SigilOfFlames p0        5   190     59    13684    29292   1528        3.970
+barM_HTH_nav_idle p0                  3   190     61     4156    12540    548        1.488
+barM_HTH_nav_idle p1                  3   190    121     4668    23996   1084        1.294
+barM_HTH_nav_idle p2                  3   190    121     4664    26056   1084        1.383
+
+==== probe.py ====
+==============================================================================
+flCompression=5 STRUCTURAL PROBE — comp=0/3 size-equation test
+==============================================================================
+
+--- warM_2HS_attk_weaponAttack p0  comp=5 bones=190 frames=53 ---
+  T: OK=190
+     sizes: 16B×147 44B×13 108B×4 224B×3 96B×3 56B×3
+  R: MISMATCH=22 OK=157 empty=11
+     sizes: 12B×118 172B×12 0B×11 364B×3 408B×3 256B×3
+      bone[1]: count=41 n=372 expect_r=370
+      bone[5]: count=40 n=364 expect_r=362
+      bone[6]: count=40 n=364 expect_r=362
+      bone[7]: count=45 n=408 expect_r=406
+  S: OK=13 empty=177
+     sizes: 0B×177 16B×11 56B×2
+
+--- warM_2HS_attk_weaponAttack p1  comp=5 bones=190 frames=53 ---
+  T: OK=190
+     sizes: 16B×147 44B×15 96B×5 56B×5 120B×3 160B×2
+  R: MISMATCH=24 OK=155 empty=11
+     sizes: 12B×117 172B×12 0B×11 128B×4 280B×3 472B×3
+      bone[9]: count=44 n=400 expect_r=398
+      bone[10]: count=37 n=336 expect_r=334
+      bone[11]: count=44 n=400 expect_r=398
+      bone[13]: count=36 n=328 expect_r=326
+  S: OK=13 empty=177
+     sizes: 0B×177 16B×11 44B×2
+
+--- warM_1hsOh_attk_weaponAttack p0  comp=5 bones=190 frames=53 ---
+  T: OK=190
+     sizes: 16B×68 56B×49 84B×21 44B×19 148B×7 108B×6
+  R: MISMATCH=54 OK=128 empty=8
+     sizes: 12B×44 84B×20 64B×16 100B×9 128B×9 0B×8
+      bone[2]: count=9 n=84 expect_r=82
+      bone[8]: count=48 n=436 expect_r=434
+      bone[10]: count=49 n=444 expect_r=442
+      bone[19]: count=45 n=408 expect_r=406
+  S: OK=13 empty=177
+     sizes: 0B×177 56B×8 44B×3 16B×2
+
+--- warM_1hsOh_attk_weaponAttack p1  comp=5 bones=190 frames=53 ---
+  T: OK=190
+     sizes: 16B×142 44B×15 68B×5 120B×5 172B×4 84B×4
+  R: MISMATCH=40 OK=139 empty=11
+     sizes: 12B×117 0B×11 228B×7 400B×4 256B×3 416B×3
+      bone[1]: count=32 n=292 expect_r=290
+      bone[5]: count=28 n=256 expect_r=254
+      bone[6]: count=41 n=372 expect_r=370
+      bone[7]: count=44 n=400 expect_r=398
+  S: OK=13 empty=177
+     sizes: 0B×177 16B×11 68B×1 44B×1
+
+--- warM_demonForm_nav_runStop p0  comp=5 bones=190 frames=60 ---
+  T: OK=190
+     sizes: 16B×118 44B×30 68B×11 56B×11 84B×3 108B×2
+  R: MISMATCH=37 OK=141 empty=12
+     sizes: 12B×95 0B×12 148B×6 100B×6 172B×5 120B×5
+      bone[5]: count=41 n=372 expect_r=370
+      bone[7]: count=44 n=400 expect_r=398
+      bone[9]: count=45 n=408 expect_r=406
+      bone[11]: count=44 n=400 expect_r=398
+  S: OK=12 empty=178
+     sizes: 0B×178 16B×9 264B×2 200B×1
+
+--- warM_2HM_attk_apocalypse p0  comp=5 bones=190 frames=97 ---
+  T: OK=190
+     sizes: 16B×131 44B×18 56B×6 84B×5 136B×3 224B×3
+  R: MISMATCH=39 OK=140 empty=11
+     sizes: 12B×96 0B×11 172B×8 20B×6 876B×5 732B×4
+      bone[1]: count=81 n=732 expect_r=730
+      bone[5]: count=81 n=732 expect_r=730
+      bone[6]: count=33 n=300 expect_r=298
+      bone[8]: count=88 n=796 expect_r=794
+  S: OK=13 empty=177
+     sizes: 0B×177 16B×11 80B×1 108B×1
+
+--- warM_2HM_attk_apocalypse p1  comp=5 bones=190 frames=16 ---
+  T: OK=190
+     sizes: 16B×140 44B×20 84B×9 56B×5 136B×4 68B×3
+  R: MISMATCH=24 OK=154 empty=12
+     sizes: 12B×117 56B×13 136B×12 0B×12 120B×10 100B×7
+      bone[6]: count=13 n=120 expect_r=118
+      bone[10]: count=12 n=112 expect_r=110
+      bone[11]: count=13 n=120 expect_r=118
+      bone[12]: count=13 n=120 expect_r=118
+  S: OK=13 empty=177
+     sizes: 0B×177 16B×11 80B×2
+
+--- warM_2HM_attk_apocalypse p2  comp=3 bones=190 frames=23 ---
+  T: OK=190
+     sizes: 16B×147 44B×27 68B×3 316B×2 84B×2 56B×2
+  R: MISMATCH=22 OK=156 empty=12
+     sizes: 12B×125 156B×16 0B×12 208B×9 200B×8 172B×7
+      bone[13]: count=20 n=184 expect_r=182
+      bone[14]: count=21 n=192 expect_r=190
+      bone[30]: count=12 n=112 expect_r=110
+      bone[41]: count=17 n=156 expect_r=154
+  S: OK=13 empty=177
+     sizes: 0B×177 16B×13
+
+--- warM_2HM_attk_apocalypse p3  comp=3 bones=190 frames=49 ---
+  T: OK=190
+     sizes: 16B×143 44B×17 252B×3 276B×3 656B×2 368B×2
+  R: MISMATCH=35 OK=143 empty=12
+     sizes: 12B×111 0B×12 128B×12 444B×10 400B×5 380B×4
+      bone[1]: count=45 n=408 expect_r=406
+      bone[5]: count=45 n=408 expect_r=406
+      bone[6]: count=41 n=372 expect_r=370
+      bone[8]: count=49 n=444 expect_r=442
+  S: OK=13 empty=177
+     sizes: 0B×177 16B×11 68B×2
+
+--- warM_2HM_attk_apocalypse p4  comp=5 bones=190 frames=66 ---
+  T: OK=190
+     sizes: 16B×65 84B×63 56B×20 44B×15 224B×4 136B×3
+  R: MISMATCH=63 OK=115 empty=12
+     sizes: 12B×50 48B×34 64B×18 0B×12 28B×10 136B×8
+      bone[5]: count=57 n=516 expect_r=514
+      bone[10]: count=48 n=436 expect_r=434
+      bone[12]: count=40 n=364 expect_r=362
+      bone[13]: count=53 n=480 expect_r=478
+  S: OK=13 empty=177
+     sizes: 0B×177 68B×9 132B×2 96B×2
+
+--- warM_1HS_attk_SigilOfFlames p0  comp=5 bones=190 frames=59 ---
+  T: OK=190
+     sizes: 56B×66 16B×56 44B×19 136B×13 84B×10 68B×4
+  R: MISMATCH=73 OK=106 empty=11
+     sizes: 12B×39 48B×19 0B×11 136B×8 128B×7 120B×7
+      bone[1]: count=52 n=472 expect_r=470
+      bone[2]: count=5 n=48 expect_r=46
+      bone[5]: count=52 n=472 expect_r=470
+      bone[6]: count=28 n=256 expect_r=254
+  S: OK=13 empty=177
+     sizes: 0B×177 96B×2 16B×2 68B×2 200B×2 184B×2
+
+--- barM_HTH_nav_idle p0  comp=3 bones=190 frames=61 ---
+  T: OK=190
+     sizes: 16B×171 68B×7 56B×6 84B×5 188B×1
+  R: MISMATCH=31 OK=142 empty=17
+     sizes: 12B×110 0B×17 136B×9 148B×6 184B×5 120B×5
+      bone[7]: count=16 n=148 expect_r=146
+      bone[8]: count=20 n=184 expect_r=182
+      bone[11]: count=5 n=48 expect_r=46
+      bone[12]: count=20 n=184 expect_r=182
+  S: OK=1 empty=189
+     sizes: 0B×189 548B×1
+
+--- barM_HTH_nav_idle p1  comp=3 bones=190 frames=121 ---
+  T: OK=190
+     sizes: 16B×169 44B×7 84B×5 96B×4 108B×2 120B×2
+  R: MISMATCH=37 OK=137 empty=16
+     sizes: 12B×106 0B×16 256B×6 264B×5 280B×4 316B×4
+      bone[6]: count=40 n=364 expect_r=362
+      bone[7]: count=29 n=264 expect_r=262
+      bone[9]: count=36 n=328 expect_r=326
+      bone[10]: count=53 n=480 expect_r=478
+  S: OK=1 empty=189
+     sizes: 0B×189 1084B×1
+
+--- barM_HTH_nav_idle p2  comp=3 bones=190 frames=121 ---
+  T: OK=190
+     sizes: 16B×170 96B×7 44B×7 84B×2 120B×2 448B×1
+  R: MISMATCH=41 OK=133 empty=16
+     sizes: 12B×104 0B×16 256B×6 264B×5 336B×4 228B×4
+      bone[6]: count=52 n=472 expect_r=470
+      bone[7]: count=32 n=292 expect_r=290
+      bone[9]: count=44 n=400 expect_r=398
+      bone[12]: count=40 n=364 expect_r=362
+  S: OK=1 empty=189
+     sizes: 0B×189 1084B×1
+
+==== valuetest.py ====
+==============================================================================
+TEST 1 — raw int16 quaternion magnitudes (xyzw / 32767)
+==============================================================================
+  warM_2HS_attk_weaponAttack p0 (comp=5): 2035 quats  |q| min=0.9999 med=1.0000 max=1.0000  near-unit(±0.02)=2035/2035 (100.0%)
+  warM_2HS_attk_weaponAttack p1 (comp=5): 1971 quats  |q| min=0.9999 med=1.0000 max=1.0000  near-unit(±0.02)=1971/1971 (100.0%)
+  warM_1hsOh_attk_weaponAttack p0 (comp=5): 2753 quats  |q| min=1.0000 med=1.0000 max=1.0000  near-unit(±0.02)=2753/2753 (100.0%)
+  warM_1hsOh_attk_weaponAttack p1 (comp=5): 2060 quats  |q| min=0.9999 med=1.0000 max=1.0000  near-unit(±0.02)=2060/2060 (100.0%)
+  warM_demonForm_nav_runStop p0 (comp=5): 2060 quats  |q| min=0.9999 med=1.0000 max=1.0000  near-unit(±0.02)=2060/2060 (100.0%)
+  warM_2HM_attk_apocalypse p0 (comp=5): 3845 quats  |q| min=0.9999 med=1.0000 max=1.0000  near-unit(±0.02)=3845/3845 (100.0%)
+  warM_2HM_attk_apocalypse p1 (comp=5): 785 quats  |q| min=1.0000 med=1.0000 max=1.0000  near-unit(±0.02)=785/785 (100.0%)
+  warM_2HM_attk_apocalypse p2 (comp=3): 1088 quats  |q| min=1.0000 med=1.0000 max=1.0000  near-unit(±0.02)=1088/1088 (100.0%)
+  warM_2HM_attk_apocalypse p3 (comp=3): 2261 quats  |q| min=0.9999 med=1.0000 max=1.0000  near-unit(±0.02)=2261/2261 (100.0%)
+  warM_2HM_attk_apocalypse p4 (comp=5): 2725 quats  |q| min=0.9999 med=1.0000 max=1.0000  near-unit(±0.02)=2725/2725 (100.0%)
+  warM_1HS_attk_SigilOfFlames p0 (comp=5): 3204 quats  |q| min=1.0000 med=1.0000 max=1.0000  near-unit(±0.02)=3204/3204 (100.0%)
+  barM_HTH_nav_idle p0 (comp=3): 1340 quats  |q| min=1.0000 med=1.0000 max=1.0000  near-unit(±0.02)=1340/1340 (100.0%)
+  barM_HTH_nav_idle p1 (comp=3): 2612 quats  |q| min=1.0000 med=1.0000 max=1.0000  near-unit(±0.02)=2612/2612 (100.0%)
+  barM_HTH_nav_idle p2 (comp=3): 2840 quats  |q| min=1.0000 med=1.0000 max=1.0000  near-unit(±0.02)=2840/2840 (100.0%)
+
+==============================================================================
+TEST 2 — rest-pose validation (comp=5 decoded AS comp=3, frame 0)
+==============================================================================
+  warM_base00 skeleton: 369 bones
+
+  warM_2HS_attk_weaponAttack p0:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 99 / 190  (median err 7.5167e-04, max 1.1172e+00)
+    R match-rest (<1.0deg): 63 / 190  (median 4.831deg, max 178.535deg)
+    R unit-length (|q|~=1): 190 / 190
+  warM_2HS_attk_weaponAttack p1:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 100 / 190  (median err 7.4631e-04, max 1.9155e+00)
+    R match-rest (<1.0deg): 64 / 190  (median 5.720deg, max 177.920deg)
+    R unit-length (|q|~=1): 190 / 190
+  warM_1hsOh_attk_weaponAttack p0:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 92 / 190  (median err 1.6434e-03, max 1.1278e+00)
+    R match-rest (<1.0deg): 63 / 190  (median 4.435deg, max 128.805deg)
+    R unit-length (|q|~=1): 190 / 190
+  warM_1hsOh_attk_weaponAttack p1:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 99 / 190  (median err 7.5167e-04, max 1.1278e+00)
+    R match-rest (<1.0deg): 64 / 190  (median 4.468deg, max 145.960deg)
+    R unit-length (|q|~=1): 190 / 190
+  warM_demonForm_nav_runStop p0:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 111 / 190  (median err 5.5782e-04, max 1.6923e+00)
+    R match-rest (<1.0deg): 71 / 190  (median 5.192deg, max 147.475deg)
+    R unit-length (|q|~=1): 190 / 190
+  warM_2HM_attk_apocalypse p0:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 90 / 190  (median err 1.6912e-03, max 1.5490e+00)
+    R match-rest (<1.0deg): 67 / 190  (median 4.435deg, max 164.212deg)
+    R unit-length (|q|~=1): 190 / 190
+  warM_2HM_attk_apocalypse p1:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 99 / 190  (median err 5.6639e-04, max 1.9763e+00)
+    R match-rest (<1.0deg): 68 / 190  (median 4.044deg, max 143.350deg)
+    R unit-length (|q|~=1): 190 / 190
+  warM_2HM_attk_apocalypse p2:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 96 / 190  (median err 8.5222e-04, max 1.9479e+00)
+    R match-rest (<1.0deg): 66 / 190  (median 4.044deg, max 132.071deg)
+    R unit-length (|q|~=1): 190 / 190
+  warM_2HM_attk_apocalypse p3:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 96 / 190  (median err 8.5222e-04, max 1.9573e+00)
+    R match-rest (<1.0deg): 66 / 190  (median 4.044deg, max 132.071deg)
+    R unit-length (|q|~=1): 190 / 190
+  warM_2HM_attk_apocalypse p4:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 99 / 190  (median err 5.6639e-04, max 1.9763e+00)
+    R match-rest (<1.0deg): 68 / 190  (median 4.044deg, max 143.350deg)
+    R unit-length (|q|~=1): 190 / 190
+  warM_1HS_attk_SigilOfFlames p0:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 98 / 190  (median err 7.5284e-04, max 1.1278e+00)
+    R match-rest (<1.0deg): 67 / 190  (median 4.057deg, max 128.805deg)
+    R unit-length (|q|~=1): 190 / 190
+  barM_HTH_nav_idle p0:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 13 / 190  (median err 3.3295e-02, max 1.1331e+00)
+    R match-rest (<1.0deg): 111 / 190  (median 0.000deg, max 124.735deg)
+    R unit-length (|q|~=1): 190 / 190
+  barM_HTH_nav_idle p1:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 13 / 190  (median err 3.3295e-02, max 1.1331e+00)
+    R match-rest (<1.0deg): 111 / 190  (median 0.000deg, max 124.735deg)
+    R unit-length (|q|~=1): 190 / 190
+  barM_HTH_nav_idle p2:
+    bones decoded:        190
+    bones in skeleton:    190
+    T match-rest (<1e-3): 13 / 190  (median err 3.3295e-02, max 1.1331e+00)
+    R match-rest (<1.0deg): 111 / 190  (median 0.000deg, max 124.735deg)
+    R unit-length (|q|~=1): 190 / 190
+
+==============================================================================
+TEST 3 — cross-permutation constant curves (known plaintext)
+==============================================================================
+  comp=5 p0 (97f) vs comp=3 p2 (23f), same skeleton:
+    translation: 130/131 count=1 curves have identical baselines
+      bone[2]: c5=(-0.2819, -0.4847, -0.0) c3=(0.0, 0.0, 0.0)
+    rotation: 96/96 count=1 curves have identical baselines
+
+==== hexdump.py ====
+==========================================================================
+HEX DUMPS — warM_2HM_attk_apocalypse: comp=5 p0 vs comp=3 p2
+(same animation, same 190-bone warM_base00 skeleton, one payload)
+==========================================================================
+
+--------------------------------------------------------------------------
+warM_2HM_attk_apocalypse p0 (comp=5, 97f) bone[6] hash=0x32ff39ad
+--------------------------------------------------------------------------
+
+ TRANSLATION  (96B @ payload offset 6064)
+  count=6  fmt=0x04  pad=0x0000
+  baseline xyz = (0.00799, 0.00325, -0.0479)
+  timestamps[6] = [0, 5, 9, 20, 43, 96]
+  000017b0  06 04 00 00 c4 e6 02 3c 60 ce 54 3b 40 34 44 bd  |.......<`.T;@4D.|
+  000017c0  00 05 09 14 2b 60 00 00 00 00 00 00 00 00 00 00  |....+`..........|
+  000017d0  00 00 00 00 5f 07 fe bb 88 1f 4f bb 34 e2 ae 3c  |...._.....O.4..<|
+  000017e0  c5 e6 02 bc 38 76 55 bb 45 3c b4 3c c5 e6 02 bc  |....8vU.E<.<....|
+  000017f0  38 76 55 bb 45 3c b4 3c c5 e6 02 bc 38 76 55 bb  |8vU.E<.<....8vU.|
+  00001800  45 3c b4 3c c5 e6 02 bc 38 76 55 bb 45 3c b4 3c  |E<.<....8vU.E<.<|
+
+ ROTATION  (300B @ payload offset 22664)
+  count=33
+  timestamps[32] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 35, 36, 42, 43, 44, 45, 46, 47, 48, 50, 51, 52, 79, 82, 86, 96]
+  00005888  21 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0e 0f  |!...............|
+  00005898  10 11 23 24 2a 2b 2c 2d 2e 2f 30 32 33 34 4f 52  |..#$*+,-./0234OR|
+  000058a8  56 60 57 18 06 ec 0b db 6d 76 5f 18 f9 ea c8 da  |V`W.....mv_.....|
+  000058b8  28 76 e2 18 78 e9 44 da 9c 75 40 1b 4c e9 8d d9  |(v..x.D..u@.L...|
+  000058c8  d1 74 63 23 1a f7 ad ce 54 70 08 17 1b 07 e4 e5  |.tc#....Tp......|
+  000058d8  f6 7a d1 fe 8d 18 84 f5 2c 7d 51 01 32 18 3c f5  |.z......,}Q.2.<.|
+  000058e8  38 7d ca 06 54 17 8d f4 25 7d 2f 0c 31 16 bc f3  |8}..T...%}/.1...|
+  000058f8  dd 7c 86 0e d4 14 39 f3 cc 7c c1 fd 44 11 9b fc  |.|....9..|..D...|
+  00005908  c2 7e d8 fd 41 0d 7a fd 43 7f 2d fe 62 05 01 ff  |.~..A.z.C.-.b...|
+  00005918  dd 7f 50 fe f5 02 75 ff f3 7f 72 fe e1 00 d7 ff  |..P...u...r.....|
+  00005928  fb 7f 81 fe 00 00 00 00 fc 7f 81 fe 00 00 00 00  |................|
+  00005938  fc 7f a6 fe 7d ff 35 ff fc 7f a6 fe 7d ff 35 ff  |....}.5.....}.5.|
+  00005948  fc 7f 0b 00 fb fe a8 fd f8 7f 00 03 02 fe 4a fa  |..............J.|
+  00005958  d1 7f b9 05 3d fd 16 f7 86 7f fd 06 ed fc 8f f5  |....=...........|
+  00005968  57 7f 62 06 1b fd 58 f6 70 7f db 04 95 fd 4d f8  |W.b...X.p.....M.|
+  00005978  a6 7f c4 00 11 ff 56 fd f6 7f 28 ff b9 ff 3e ff  |......V...(...>.|
+  00005988  fd 7f 81 fe 00 00 00 00 fc 7f 81 fe 00 00 00 00  |................|
+  00005998  fc 7f a6 fe 7d ff 35 ff fc 7f a6 fe 7d ff 35 ff  |....}.5.....}.5.|
+  000059a8  fc 7f a6 fe 7d ff 35 ff fc 7f 00 00              |....}.5.....|
+
+ SCALE  (0B @ payload offset 0)
+  (empty curve)
+
+--------------------------------------------------------------------------
+warM_2HM_attk_apocalypse p2 (comp=3, 23f) bone[6] hash=0x32ff39ad
+--------------------------------------------------------------------------
+
+ TRANSLATION  (16B @ payload offset 63336)
+  count=1  fmt=0x04  pad=0x0000
+  baseline xyz = (-0.0, -1e-05, -0.0259)
+  0000f768  01 04 00 00 00 80 b5 b0 00 d8 27 b7 3b 2c d4 bc  |..........'.;,..|
+
+ ROTATION  (12B @ payload offset 90808)
+  count=1
+  quat i16 xyzw = (-842, 3873, 2516, 32428)  -> (-0.0257, 0.1182, 0.0768, 0.9897)
+  000162b8  01 00 b6 fc 21 0f d4 09 ac 7e 00 00              |....!....~..|
+
+ SCALE  (0B @ payload offset 0)
+  (empty curve)
+
+--------------------------------------------------------------------------
+warM_2HM_attk_apocalypse p0 (comp=5, 97f) bone[8] hash=0x1289e8b3
+--------------------------------------------------------------------------
+
+ TRANSLATION  (16B @ payload offset 6416)
+  count=1  fmt=0x04  pad=0x0000
+  baseline xyz = (0.00021, -0.08272, -0.09042)
+  00001910  01 04 00 00 00 84 5d 39 bb 6a a9 bd 55 2c b9 bd  |......]9.j..U,..|
+
+ ROTATION  (796B @ payload offset 23816)
+  count=88
+  timestamps[87] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 62, 64, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 93, 96]
+  00005d08  58 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e  |X...............|
+  00005d18  0f 10 11 12 13 15 16 17 18 19 1a 1b 1c 1d 1e 1f  |................|
+  00005d28  20 21 22 23 24 25 26 27 28 29 2a 2b 2c 2d 2e 2f  | !"#$%&'()*+,-./|
+  00005d38  30 31 32 33 34 35 36 37 38 39 3a 3b 3e 40 42 43  |0123456789:;>@BC|
+  00005d48  44 45 46 47 48 49 4a 4b 4c 4d 4e 4f 50 51 52 53  |DEFGHIJKLMNOPQRS|
+  00005d58  54 55 56 57 58 59 5a 5d 60 00 3b f5 be 1a 1f 71  |TUVWXYZ]`.;....q|
+  00005d68  7d 34 f9 f7 39 19 ef 71 f7 33 d9 fa ba 19 1c 72  |}4..9..q.3.....r|
+  00005d78  b4 33 a7 f5 fe 1c 68 70 e9 34 3c dc 4b 20 c9 69  |.3....hp.4<.K .i|
+  00005d88  91 35 8c d3 23 15 24 51 e2 55 ca dd 42 08 67 37  |.5..#.$Q.U..B.g7|
+  00005d98  e2 6d d8 d6 0a 15 d6 26 dc 70 1d d3 30 1f ed 20  |.m.....&.p..0.. |
+  00005da8  f4 6e 0c d2 2d 23 68 22 db 6c 07 cf 09 20 fb 27  |.n..-#h".l... .'|
+  00005db8  94 6a df d8 f2 0b 27 30 4f 6f 15 d2 73 ff e4 32  |.j....'0Oo..s..2|
+  00005dc8  17 6c 1b d3 d0 fc 42 34 d3 6b b2 d6 5f fb 20 36  |.l....B4.k.._. 6|
+  00005dd8  48 6c fb d9 52 fa 15 3a 62 6b dd dd 20 f9 96 41  |Hl..R..:bk.. ..A|
+  00005de8  40 68 97 df 12 f8 ff 45 d5 65 3e de 76 f7 98 43  |@h.....E.e>.v..C|
+  00005df8  f6 66 34 dc f6 f6 c1 40 0c 68 dd d6 0f f6 46 3a  |.f4....@.h....F:|
+  00005e08  cf 69 03 d4 8d f5 fe 36 5e 6a 59 d1 f8 f4 f4 33  |.i.....6^jY....3|
+  00005e18  b3 6a 16 cf 4e f4 5a 31 da 6a 2f cd f4 f3 97 2f  |.j..N.Z1.j/..../|
+  00005e28  b9 6a 7f cb 27 f4 f2 2e 37 6a 29 ca b9 f4 66 2f  |.j..'...7j)...f/|
+  00005e38  67 69 51 c9 7c f5 eb 30 59 68 1a c9 45 f6 70 33  |giQ.|..0Yh..E.p3|
+  00005e48  17 67 9c c9 ee f6 e2 36 a2 65 e6 ca 56 f7 27 3b  |.g.....6.e..V.';|
+  00005e58  f1 63 7a ce fe f7 56 40 9f 62 dd d3 87 f9 4e 45  |.cz...V@.b....NE|
+  00005e68  ec 61 15 da 30 fc 81 49 9b 61 02 e0 27 ff 62 4c  |.a..0..I.a..'.bL|
+  00005e78  97 61 cd e2 3a 00 8c 4e bf 60 b0 e3 88 00 29 4f  |.a..:..N.`....)O|
+  00005e88  82 60 9d e4 13 02 66 50 bb 5f ab e5 05 04 91 52  |.`....fP._.....R|
+  00005e98  1a 5e a7 e6 97 05 aa 54 6b 5c 16 e7 f8 05 b6 55  |.^.....Tk\.....U|
+  00005ea8  8a 5b 2c e7 8e 05 e7 55 69 5b e7 e5 69 05 61 56  |.[,....Ui[..i.aV|
+  00005eb8  9d 5a 14 e3 59 05 5b 57 ce 58 9b e0 1a 05 54 58  |.Z..Y.[W.X....TX|
+  00005ec8  00 57 47 df bc 04 3a 58 a2 56 c4 df 77 04 59 57  |.WG...:X.V..w.YW|
+  00005ed8  b6 57 be e1 83 04 34 56 88 59 a3 e4 b0 04 db 54  |.W....4V.Y.....T|
+  00005ee8  b6 5b fa e7 15 05 bf 53 a0 5d ea ea 7d 05 f4 52  |.[.....S.]..}..R|
+  00005ef8  01 5f 5c ec a4 05 8a 52 ab 5f 80 ec 77 05 fe 50  |._\....R._..w..P|
+  00005f08  05 61 55 ec 40 05 22 4e 50 63 be eb 01 05 2c 4c  |.aU.@."NPc....,L|
+  00005f18  b8 64 59 ea 62 04 22 4c 7d 64 77 e8 60 03 11 4d  |.dY.b."L}dw.`..M|
+  00005f28  63 63 d4 e6 47 02 5d 4e ff 61 fd e5 66 01 3a 4f  |cc..G.]N.a..f.:O|
+  00005f38  17 61 3d e5 3d ff 4c 50 03 60 16 e5 0b fe e9 50  |.a=.=.LP.`.....P|
+  00005f48  6f 5f 67 e5 82 fd 5a 51 22 5f c9 e5 9e fd 7a 51  |o_g...ZQ"_....zQ|
+  00005f58  23 5f b9 e6 48 fe 93 51 52 5f 41 e8 78 ff a7 51  |#_..H..QR_A.x..Q|
+  00005f68  a9 5f cc e9 b3 00 b2 51 fe 5f 87 ea 4a 01 b4 51  |._.....Q._..J..Q|
+  00005f78  25 60 83 ea 41 01 b7 51 22 60 35 eb 08 02 9b 51  |%`..A..Q"`5....Q|
+  00005f88  5e 60 61 ea fb 01 45 51 78 60 0f e8 f8 00 d0 50  |^`a...EQx`.....P|
+  00005f98  51 60 85 e5 ed ff 50 50 14 60 d4 e2 b7 fe f6 4f  |Q`....PP.`.....O|
+  00005fa8  95 5f 94 e0 e9 fd c9 4f 00 5f 7d df 4c fe aa 4f  |._.....O._}.L..O|
+  00005fb8  bd 5e 8f de ca ff 90 4f 84 5e 1c dd 85 01 82 4f  |.^.....O.^.....O|
+  00005fc8  07 5e f2 db d6 02 73 4f 9b 5d e0 db a9 03 81 4f  |.^....sO.].....O|
+  00005fd8  81 5d 7c dc 35 04 a1 4f 9b 5d 08 dd 30 04 8a 4f  |.]|.5..O.]..0..O|
+  00005fe8  e4 5d c4 dd e5 03 5a 4f 54 5e 26 df f2 03 64 4f  |.]....ZOT^&...dO|
+  00005ff8  c9 5e 32 e2 9d 04 ea 4f 53 5f 13 e3 e9 04 fd 4f  |.^2....OS_.....O|
+  00006008  84 5f 7a e3 16 05 ff 4f 9f 5f ab e4 93 05 10 50  |._z....O._.....P|
+  00006018  e3 5f 4b e5 d8 05 17 50 06 60 00 00              |._K....P.`..|
+
+ SCALE  (0B @ payload offset 0)
+  (empty curve)
+
+--------------------------------------------------------------------------
+warM_2HM_attk_apocalypse p2 (comp=3, 23f) bone[8] hash=0x1289e8b3
+--------------------------------------------------------------------------
+
+ TRANSLATION  (16B @ payload offset 6416)
+  count=1  fmt=0x04  pad=0x0000
+  baseline xyz = (0.00021, -0.08272, -0.09042)
+  00001910  01 04 00 00 00 84 5d 39 bb 6a a9 bd 55 2c b9 bd  |......]9.j..U,..|
+
+ ROTATION  (208B @ payload offset 90840)
+  count=23
+  timestamps[22] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+  000162d8  17 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e  |................|
+  000162e8  0f 10 11 12 13 14 15 16 97 db cd 0e e8 30 8f 6f  |.............0.o|
+  000162f8  0d dd 94 0f 98 30 0f 70 b7 de 9d 10 17 30 a2 70  |.....0.p.....0.p|
+  00016308  5b dd 71 10 f0 2f 4f 70 2d dc 71 10 b1 2f 0c 70  |[.q../Op-.q../.p|
+  00016318  cc dd a3 11 01 2f a9 70 84 df c8 12 57 2e 41 71  |...../.p....W.Aq|
+  00016328  27 de 8f 12 44 2e ec 70 d3 dc 29 12 5a 2e 8c 70  |'...D..p..).Z..p|
+  00016338  3d de b3 12 28 2e f8 70 d8 df 48 13 f3 2d 6d 71  |=...(..p..H..-mq|
+  00016348  73 de a7 12 3e 2e 02 71 30 dd 0a 12 87 2e 9b 70  |s...>..q0......p|
+  00016358  ce de 8d 12 67 2e 10 71 a0 e0 21 13 40 2e 8c 71  |....g..q..!.@..q|
+  00016368  3a df 65 12 a1 2e 1e 71 ec dd ab 11 01 2f b1 70  |:.e....q...../.p|
+  00016378  a2 df 2c 12 eb 2e 27 71 89 e1 bf 12 cd 2e a2 71  |..,...'q.......q|
+  00016388  ed df db 11 43 2f 24 71 68 de f9 10 b6 2f a6 70  |....C/$qh..../.p|
+  00016398  fe df 6a 11 ab 2f 0f 71 8f de 24 10 75 30 7f 70  |..j../.q..$.u0.p|
+
+ SCALE  (0B @ payload offset 0)
+  (empty curve)
+
+==========================================================================
+FMT-BYTE AUDIT — translation/scale curves across all comp=5 perms
+==========================================================================
+  1826/1826 non-empty comp=5 T/S curves have fmt==0x04

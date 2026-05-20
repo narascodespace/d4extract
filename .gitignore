@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtual env
+.venv/
+
+# Build / lock outputs (keep uv.lock)
+build/
+dist/
+
+# Local-only sample binaries and exports (large, not source)
+samples/
+exports/
+exported/
+
+# Third-party tool checkout
+rustydemon/
+
+# IDE
+.vscode/
+.idea/
+
+# TACT keys — never commit (DMCA risk)
+**/tact_keys*.txt
+**/tact_keys*.csv
+**/TACTKEY*.csv
+**/TACTKEY*.txt
+**/*.tactkey
+
+# Logs & debug
+*.log
+
+# Local export & analysis dirs
+pythongui_exports/
+analysis/
+
+# Personal prompt files (in case any leak in)
+prompt-*.md
+*-prompt.md
+
+# Blender addon build artifacts (build/ and dist/ globally covered above)
+blender_addon/dist/
+blender_addon/dist.zip
