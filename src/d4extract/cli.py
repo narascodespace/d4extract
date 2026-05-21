@@ -719,7 +719,12 @@ def sample(
 @click.argument("data_file", type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--output", "-o", type=click.Path(path_type=Path), default=None,
-    help="Output .glb path (default: same dir/name as input).",
+    help="Output root directory; the model lands at "
+         "<output>/<stem>/<stem>.<fmt> with loose textures alongside in "
+         "textures/. Passing a .glb/.gltf path still works for backwards "
+         "compat — the file's parent is treated as the root and a "
+         "warning is printed if its stem differs from the meta stem. "
+         "Default: same parent dir as the meta file.",
 )
 @click.option(
     "--format", "fmt", type=click.Choice(["glb", "gltf"]), default="glb",
@@ -793,15 +798,39 @@ def export_cmd(
     validate: bool,
 ) -> None:
     """Export a .app model pair to glTF (.glb)."""
-    from d4extract.export.gltf_export import GltfExporter, GltfExportError, validate_glb_external
+    from d4extract.export.gltf_export import (
+        GltfExporter, GltfExportError, resolve_export_paths,
+        validate_glb_external,
+    )
     from d4extract.formats.app_parser import AppFormatError, parse_app
     from d4extract.formats.material_parser import (
         MaterialResolutionError, load_materials,
     )
 
+    # Resolve the per-model layout: ``<root>/<stem>/<stem>.<fmt>`` with
+    # a sibling ``textures/`` folder for the loose-texture dump. The
+    # historical ``--output <path>.glb`` form is still accepted — the
+    # file's parent becomes the root, and a warning fires if the user's
+    # chosen stem disagrees with the meta-file stem.
+    ext = "gltf" if fmt == "gltf" else "glb"
+    stem = meta_file.stem
     if output is None:
-        ext = ".gltf" if fmt == "gltf" else ".glb"
-        output = meta_file.with_suffix(ext)
+        output_root = meta_file.parent
+    else:
+        suffix = output.suffix.lower()
+        if suffix in (".glb", ".gltf"):
+            if output.stem != stem:
+                err_console.print(
+                    f"[yellow]Warning:[/yellow] --output stem "
+                    f"{output.stem!r} disagrees with meta stem "
+                    f"{stem!r}; using {stem!r} for the model folder."
+                )
+            output_root = output.parent
+        else:
+            output_root = output
+    _model_dir, output, _textures_dir = resolve_export_paths(
+        output_root, stem, ext,
+    )
 
     try:
         mesh = parse_app(meta_file, data_file)
@@ -921,6 +950,9 @@ def export_cmd(
             texture_dir=texture_dir,
             embed_textures=with_textures,
             include_cloth=include_cloth,
+            # Parallel loose-texture dump alongside the .glb. Empty
+            # when nothing is being embedded (no decoded data to dump).
+            loose_textures_dir=_textures_dir if with_textures else None,
         )
         out = exporter.export(
             mesh, output,

@@ -7,11 +7,22 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 from d4extract.casc.archive import CASCEntry
 
 log = logging.getLogger(__name__)
+
+# CREATE_NO_WINDOW suppresses the per-child console flash that Windows
+# would otherwise pop up when a --windowed PyInstaller .exe spawns a
+# console child (rustydemon-cli). The flag is Windows-only; the
+# attribute does not exist on POSIX, so we look it up defensively via
+# getattr so source runs on Linux / macOS still work for tests.
+_NO_WINDOW_FLAG = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+_SUBPROCESS_KWARGS: dict = (
+    {"creationflags": _NO_WINDOW_FLAG} if os.name == "nt" else {}
+)
 
 # Markers that identify a Diablo IV install directory.
 _D4_MARKERS = ("Data", ".build.info")
@@ -148,6 +159,22 @@ class RustyDemonCLI:
         if found:
             log.debug("rustydemon-cli found on PATH: %s", found)
             return Path(found).resolve()
+
+        # 2.5 Next to the executable. PyInstaller-frozen builds ship
+        # rustydemon-cli in a sibling ``rustydemon/`` folder (see
+        # packaging/build.ps1). This needs an absolute path because the
+        # user may launch the .exe from any working directory.
+        if getattr(sys, "frozen", False):
+            exe_dir = Path(sys.executable).resolve().parent
+            for candidate in (
+                exe_dir / "rustydemon" / "rustydemon-cli",
+                exe_dir / "rustydemon" / "rustydemon-cli.exe",
+            ):
+                if candidate.is_file():
+                    log.debug(
+                        "rustydemon-cli found next to executable: %s", candidate
+                    )
+                    return candidate.resolve()
 
         # 3. Local build directory
         local = Path("rustydemon/target/release/rustydemon-cli")
@@ -890,6 +917,7 @@ class RustyDemonCLI:
                 capture_output=True,
                 text=True,
                 check=True,
+                **_SUBPROCESS_KWARGS,
             )
         except subprocess.CalledProcessError as exc:
             raise CASCExtractionError(
@@ -912,6 +940,7 @@ class RustyDemonCLI:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
+                **_SUBPROCESS_KWARGS,
             )
             # Stream stderr lines for progress output, but also
             # accumulate them so we can report the real error on failure.

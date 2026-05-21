@@ -4,37 +4,56 @@ The ``.tex`` payload is **mip 0 only**, stored as raw block-compressed
 bytes with no header. Width/height/format come from the meta JSON
 (already on the :class:`d4extract.formats.material_parser.TextureRef`).
 We synthesise a DDS header around the bytes and let Pillow 12+ decode
-it natively — no native dependencies, no BC7 complexity (every sampled
-``eTexFormat=46`` payload turns out to be BC1, not BC7, confirmed by
-its 0.5 byte-per-pixel ratio and the all-zero index pattern in the
-header bytes).
+it natively — no native dependencies.
 
-Format mapping (verified by extracting Goatman_Brute_Body_* payloads
-and checking sizes against ``width × height × bpp``):
+Format mapping (verified by extracting per-model payloads and checking
+sizes against ``width × height × bpp``, plus byte-pattern inspection
+where multiple codecs share the same eTexFormat):
 
-| eTexFormat | Codec | bpp | Sample slot                         |
-|------------|-------|-----|-------------------------------------|
-| 9          | BC4   | 0.5 | SKIN_MASK / mask                    |
-| 10         | BC4   | 0.5 | BASE_COLOR luminance (dye-system)   |
-| 41         | BC4   | 0.5 | ROUGHNESS / METALLIC / AO           |
-| 42         | BC5   | 1.0 | NORMAL (XY; Z reconstructed below)  |
-| 46         | BC1   | 0.5 | BASE_COLOR / EMISSIVE / TRANSLUCENCY|
-| 47         | BC1   | 0.5 | BASE_COLOR with 1-bit alpha (cloth) |
-| 49         | BC3   | 1.0 | Layered terrain BASE_COLOR (RGB+blend mask)|
+| eTexFormat | Codec  | bpp | Sample slot                              |
+|------------|--------|-----|------------------------------------------|
+| 9          | BC4    | 0.5 | SKIN_MASK / mask                         |
+| 10         | BC1    | 0.5 | BASE_COLOR luminance (dye-system, hair)  |
+| 41         | BC4    | 0.5 | ROUGHNESS / METALLIC / AO                |
+| 42         | BC5    | 1.0 | NORMAL (XY; Z reconstructed below)       |
+| 46         | BC1    | 0.5 | BASE_COLOR / EMISSIVE / TRANSLUCENCY     |
+| 47         | BC1    | 0.5 | BASE_COLOR with 1-bit alpha (cloth)      |
+| 49         | BC1/3  | mix | character & terrain colour; see notes    |
+| 50         | BC7    | 1.0 | Gradient ramps, body markings, FX swatch |
 
 Format 10 is the character-albedo variant: a single-channel luminance
-map that the engine multiplies with a `DyeRamp` (slot 56) lookup at
+map that the engine multiplies with a ``DyeRamp`` (slot 56) lookup at
 runtime to get the final RGB color. Without dye wiring it decodes to
 a grayscale image, which a downstream Blender importer can recolor.
 
 Format 47 was originally guessed as BC2 (alpha channel) but the
 extracted Goatman cloth color payload is exactly 0.5 bpp — i.e. BC1
 with 1-bit punch-through alpha. (BC1 supports an alpha channel via a
-two-color encoding; BC2 would have been 1.0 bpp.) The
-``rgbavalAvgColor.a == 0.63`` we saw is just the average opacity of a
-texture that does in fact use BC1's alpha bit. All other formats are
-verified by matching ``width × height × bpp`` against the actual
-payload size.
+two-color encoding; BC2 would have been 1.0 bpp.)
+
+Format 49 is dual-codec: the same ``eTexFormat`` value is used for
+two physical encodings, and the payload's byte count is the only
+reliable disambiguator (see :func:`_resolve_codec` and
+``docs/material_format_spec.md``):
+
+- ``BC1`` (0.5 bpp) for character-body Colour textures — verified
+  against ``S02_Boss_*_Color`` (1024² → 524 288 bytes, classic BC1
+  endpoint+index byte pattern) and ``Goatman_Brute_Cloth_Frac_color``
+  (1024×512 → 262 144 bytes). All cases sampled have
+  ``dwMipMapLevelMin = 1`` in the meta.
+- ``BC3`` (1.0 bpp) for character Emissive / Translucency and the
+  layered terrain shader's BASE_COLOR slots — verified against
+  ``S02_Boss_*_Emissive`` / ``_Translucency`` (512² → 262 144 bytes)
+  and the original Tega_Terrain swatch. All cases sampled have
+  ``dwMipMapLevelMin >= 2`` and the leading bytes look like BC3
+  (alpha endpoints + 6-byte alpha index block).
+
+Format 50 is BC7 — verified against ``bodyMarking_HED_bar023_stor``
+(1024² → 1 048 576 bytes = 1 bpp, blocks lead with the BC7 mode 0
+sentinel byte ``0x01``). Pillow decodes BC7 via the DDS ``DX10``
+extended header rather than a 4-character FourCC, so the dispatch
+table records the DXGI format ID and the wrapper picks the right
+header variant.
 """
 
 from __future__ import annotations
@@ -56,12 +75,27 @@ log = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class TexCodec:
-    """One row of the eTexFormat → BC-codec mapping."""
-    fourcc: bytes        # DDS FourCC (4 bytes, ASCII)
+    """One row of the eTexFormat → BC-codec mapping.
+
+    ``fourcc`` is the legacy 4-byte DDS FourCC used by the ``DDS``
+    pixel format block — set to ``b"DX10"`` for codecs that need the
+    DX10 extended header (currently only BC7).
+
+    ``dxgi_format`` is the DXGI numeric ID used by the DX10 extended
+    header, or ``0`` for codecs that are fully addressable via the
+    legacy FourCC.
+    """
+    fourcc: bytes
     bytes_per_pixel: float
-    name: str            # human-readable label
+    name: str
+    dxgi_format: int = 0
 
 
+_DXGI_BC7_UNORM      = 98
+_DXGI_BC7_UNORM_SRGB = 99
+
+
+# Single-codec rows.
 TEX_FORMATS: dict[int, TexCodec] = {
     9:  TexCodec(b"ATI1", 0.5, "BC4_UNORM (mask)"),
     # eTexFormat 10 was originally classified as BC4 single-channel
@@ -80,20 +114,61 @@ TEX_FORMATS: dict[int, TexCodec] = {
     42: TexCodec(b"ATI2", 1.0, "BC5_UNORM (normal XY)"),
     46: TexCodec(b"DXT1", 0.5, "BC1_UNORM_SRGB"),
     47: TexCodec(b"DXT1", 0.5, "BC1_UNORM_SRGB (with alpha)"),
-    # eTexFormat 49 is BC3 (DXT5) at 1 bpp — used for the layered
-    # terrain shader's BASE_COLOR slots (e.g. ``Tega_Terrain_Rock_01_Color``).
-    # The alpha channel here is a height/blend mask the engine uses to
-    # weight layer 0 vs layer 1 at runtime, NOT pixel transparency. We
-    # drop it in :func:`decode_tex` so downstream consumers (glTF
-    # exporter, viewport) treat the texture as opaque RGB.
+    # eTexFormat 49 is dual-codec — see :func:`_resolve_codec` for the
+    # disambiguation. The dispatch-table row records the BC3 variant
+    # (matching the original verified-against-terrain assumption); the
+    # resolver downgrades to BC1 when the payload is exactly half the
+    # BC3 size.
     49: TexCodec(b"DXT5", 1.0, "BC3_UNORM_SRGB (layered terrain)"),
+    # eTexFormat 50 is BC7. Pillow requires the DDS DX10 extended
+    # header for BC7, so the FourCC slot carries ``DX10`` and the
+    # codec name is matched against ``dxgi_format`` instead. The
+    # alpha channel is real (BC7 carries 8-bit alpha), so we keep it
+    # for downstream glTF alpha-mode classification.
+    50: TexCodec(b"DX10", 1.0, "BC7_UNORM_SRGB", _DXGI_BC7_UNORM_SRGB),
 }
+
+
+# eTexFormat 49 doubles as BC1 (character-body Colour textures) and
+# BC3 (Emissive / Translucency / terrain). Pre-computing the BC1
+# fallback row once means :func:`_resolve_codec` doesn't have to
+# allocate on every call.
+_FMT49_BC1_FALLBACK = TexCodec(
+    b"DXT1", 0.5, "BC1_UNORM_SRGB (character body, fmt-49 variant)",
+)
+
 
 # Formats whose BC3 alpha channel encodes engine data (height /
 # blend mask) rather than pixel transparency. ``decode_tex`` strips
 # the alpha for these so glTF doesn't mark the material as
 # alpha-tested.
 _OPAQUE_BC3_FORMATS: frozenset[int] = frozenset({49})
+
+
+def _resolve_codec(
+    fmt: int, width: int, height: int, payload_size: int,
+) -> TexCodec | None:
+    """Pick the codec for a given ``eTexFormat`` and payload size.
+
+    Most formats are 1:1. ``eTexFormat = 49`` is the exception: the
+    same enum value is used for character-body Colour textures (BC1,
+    0.5 bpp) and for Emissive / Translucency / terrain (BC3, 1.0 bpp).
+    Inspecting the leading block bytes of cached payloads shows both
+    encodings really do co-exist under fmt 49, so we disambiguate by
+    payload size — BC1 is exactly half the BC3 byte count for any
+    given dimensions, and the chance of a BC3-encoded payload landing
+    on the BC1 size by accident is zero.
+    """
+    codec = TEX_FORMATS.get(fmt)
+    if codec is None:
+        return None
+    if fmt != 49:
+        return codec
+    bc3_expected = width * height        # 1.0 bpp
+    bc1_expected = bc3_expected // 2      # 0.5 bpp
+    if payload_size == bc1_expected:
+        return _FMT49_BC1_FALLBACK
+    return codec
 
 
 class TextureDecodeError(Exception):
@@ -112,12 +187,18 @@ _DDSCAPS_TEXTURE   = 0x00001000
 _DDPF_FOURCC       = 0x00000004
 
 
-def _build_dds_header(width: int, height: int, fourcc: bytes, payload_size: int) -> bytes:
-    """Return a 128-byte DDS header (magic + DDS_HEADER) for a 2D BC texture.
+def _build_dds_header(
+    width: int, height: int, fourcc: bytes, payload_size: int,
+    *, dxgi_format: int = 0,
+) -> bytes:
+    """Return a DDS header (magic + DDS_HEADER, plus DX10 ext if needed).
 
     Layout matches MSDN: 4-byte 'DDS ' magic, then 124-byte ``DDS_HEADER``
     consisting of 7 leading DWORDs, 11 reserved DWORDs, a 32-byte
-    ``DDS_PIXELFORMAT``, then 5 trailing DWORDs (caps + reserved2).
+    ``DDS_PIXELFORMAT``, then 5 trailing DWORDs (caps + reserved2). When
+    ``fourcc == b"DX10"`` we append the 20-byte ``DDS_HEADER_DXT10``
+    structure carrying the DXGI format ID — required for BC7 (Pillow
+    only accepts BC7 via the DX10 path).
     """
     if len(fourcc) != 4:
         raise ValueError(f"FourCC must be 4 bytes, got {fourcc!r}")
@@ -129,7 +210,7 @@ def _build_dds_header(width: int, height: int, fourcc: bytes, payload_size: int)
         fourcc,              # dwFourCC (4 ASCII bytes, not a uint32)
         0, 0, 0, 0, 0,       # masks unused with FourCC
     )
-    return (
+    header = (
         b"DDS "
         + struct.pack("<I", 124)            # dwSize
         + struct.pack("<I", flags)
@@ -143,6 +224,11 @@ def _build_dds_header(width: int, height: int, fourcc: bytes, payload_size: int)
         + struct.pack("<I", _DDSCAPS_TEXTURE)
         + b"\x00" * 16                       # caps2..reserved2
     )
+    if fourcc == b"DX10":
+        # DDS_HEADER_DXT10: dxgiFormat, resourceDimension (3=TEXTURE2D),
+        # miscFlag, arraySize, miscFlags2. BC7's DXGI IDs are 98/99.
+        header += struct.pack("<IIIII", dxgi_format, 3, 0, 1, 0)
+    return header
 
 
 # ─── Public API ──────────────────────────────────────────────────────
@@ -170,14 +256,14 @@ def decode_tex(
     if not payload_path.is_file():
         raise TextureDecodeError(f"Texture payload not found: {payload_path}")
 
-    codec = TEX_FORMATS.get(fmt)
+    raw = payload_path.read_bytes()
+    codec = _resolve_codec(fmt, width, height, len(raw))
     if codec is None:
         raise TextureDecodeError(
             f"Unsupported eTexFormat: {fmt} (file {payload_path.name}). "
             f"Known formats: {sorted(TEX_FORMATS)}"
         )
 
-    raw = payload_path.read_bytes()
     expected = int(width * height * codec.bytes_per_pixel)
     if len(raw) != expected:
         # Diablo IV's payload contains exactly mip 0; if the size doesn't
@@ -188,7 +274,10 @@ def decode_tex(
             payload_path.name, len(raw), expected, width, height, codec.name,
         )
 
-    dds = _build_dds_header(width, height, codec.fourcc, len(raw)) + raw
+    dds = _build_dds_header(
+        width, height, codec.fourcc, len(raw),
+        dxgi_format=codec.dxgi_format,
+    ) + raw
     try:
         img = Image.open(io.BytesIO(dds))
         img.load()
@@ -203,8 +292,15 @@ def decode_tex(
     # transparency. Stripping it now means the glTF exporter's
     # alpha-mode heuristic (which keys off ``min(alpha) < 255``) sees
     # an opaque RGB image and leaves the material's alphaMode at
-    # OPAQUE rather than misclassifying it as MASK / BLEND.
-    if fmt in _OPAQUE_BC3_FORMATS and img.mode == "RGBA":
+    # OPAQUE rather than misclassifying it as MASK / BLEND. The
+    # ``codec.fourcc == b"DXT5"`` gate keeps us from stripping the
+    # *real* 1-bit alpha that comes back when fmt=49 resolves to BC1
+    # for a character-body Colour texture.
+    if (
+        fmt in _OPAQUE_BC3_FORMATS
+        and codec.fourcc == b"DXT5"
+        and img.mode == "RGBA"
+    ):
         img = img.convert("RGB")
     return img
 

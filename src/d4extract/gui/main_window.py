@@ -943,7 +943,10 @@ class D4ExportWindow(QMainWindow):
             return
 
         # Persist the directory the user just exported into.
-        self._settings.set_last_export_dir(out_path.parent)
+        # ``out_path`` is now ``<parent>/<stem>/<stem>.<fmt>`` — persist
+        # the *parent* the user picked, not the per-model subfolder, so
+        # the next dialog opens back at the same chosen root.
+        self._settings.set_last_export_dir(out_path.parent.parent)
 
         # Pull every discovered animation for this appearance out of
         # the GUI's discovery cache and let the worker bulk-decode them
@@ -1071,7 +1074,10 @@ class D4ExportWindow(QMainWindow):
         if out_path is None:
             return
 
-        self._settings.set_last_export_dir(out_path.parent)
+        # ``out_path`` is now ``<parent>/<stem>/<stem>.<fmt>`` — persist
+        # the *parent* the user picked, not the per-model subfolder, so
+        # the next dialog opens back at the same chosen root.
+        self._settings.set_last_export_dir(out_path.parent.parent)
 
         # Bundle every discovered animation into the export, mirroring
         # the Model Browser path. Decoding stays on the worker thread —
@@ -1161,7 +1167,10 @@ class D4ExportWindow(QMainWindow):
         if out_path is None:
             return
 
-        self._settings.set_last_export_dir(out_path.parent)
+        # ``out_path`` is now ``<parent>/<stem>/<stem>.<fmt>`` — persist
+        # the *parent* the user picked, not the per-model subfolder, so
+        # the next dialog opens back at the same chosen root.
+        self._settings.set_last_export_dir(out_path.parent.parent)
 
         # Bundle every discovered animation into the export, mirroring
         # the Model Browser path. Decoding stays on the worker thread —
@@ -1273,44 +1282,50 @@ class D4ExportWindow(QMainWindow):
     def _prompt_export_path(
         self, fmt: str, *, default_stem: str | None = None,
     ) -> Path | None:
-        suffix = ".glb" if fmt == FMT_GLB else ".gltf"
-        filter_str = (
-            "GLB files (*.glb)" if fmt == FMT_GLB else "glTF files (*.gltf)"
-        )
+        """Pick a parent directory; build ``<root>/<stem>/<stem>.<fmt>``.
 
-        default_name = "model" + suffix
+        Each export now lives in its own model-named folder so loose
+        textures, the sidecar, and (for split-file glTF) the buffer all
+        co-locate next to the model file. The user picks the *parent*
+        directory once and every per-model layout decision is owned by
+        :func:`resolve_export_paths` — both this dialog and the CLI go
+        through it so the on-disk shape is identical from either path.
+        ``last_export_dir`` therefore stores the chosen parent, not the
+        model folder, so the next dialog opens at the same parent.
+        """
+        from d4extract.export.gltf_export import resolve_export_paths
+
+        suffix = ".glb" if fmt == FMT_GLB else ".gltf"
+
         if default_stem:
             # Caller supplied an explicit stem (e.g. the Character
             # Builder's assembled-mesh name). Wins over current_mesh_data
             # which reflects Model Browser state and isn't meaningful in
             # the builder flow.
-            default_name = f"{default_stem}{suffix}"
+            stem = default_stem
         elif self.current_mesh_data is not None:
             stem = getattr(self.current_mesh_data, "name", None) or "model"
-            default_name = f"{stem}{suffix}"
         elif self.current_sno_path:
             stem = self.current_sno_path.rsplit("/", 1)[-1]
             if stem.endswith(".app"):
                 stem = stem[:-4]
-            default_name = f"{stem}{suffix}"
+        else:
+            stem = "model"
 
         last_dir = self._settings.last_export_dir()
         start_dir = str(last_dir) if last_dir is not None else ""
-        start_path = (
-            str(Path(start_dir) / default_name) if start_dir else default_name
-        )
 
-        chosen, _ = QFileDialog.getSaveFileName(
-            self, "Export model", start_path, filter_str,
+        chosen = QFileDialog.getExistingDirectory(
+            self,
+            f"Export {stem}{suffix} — pick parent folder",
+            start_dir,
         )
         if not chosen:
             return None
-        out = Path(chosen)
-        # Make sure the right extension lands even if the user typed a
-        # bare name.
-        if out.suffix.lower() != suffix:
-            out = out.with_suffix(suffix)
-        return out
+        _model_dir, model_file, _textures_dir = resolve_export_paths(
+            Path(chosen), stem, suffix,
+        )
+        return model_file
 
     def _on_export_progress(self, message: str) -> None:
         self.statusBar().showMessage(message)

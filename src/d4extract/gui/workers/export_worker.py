@@ -27,6 +27,7 @@ _EXPORTER_KWARGS = {
     "texture_dir",
     "embed_textures",
     "include_cloth",
+    "loose_textures_dir",
 }
 
 
@@ -297,10 +298,17 @@ class ExportWorker(QThread):
                 ):
                     # _resolve_materials_for emits its own progress;
                     # capture the user-visible reason for the warning.
-                    skipped_reason = (
-                        "material resolution failed for "
-                        f"{self._export_stem()!r} — check the D4Data path"
-                    )
+                    last_err = getattr(self, "_last_material_error", None)
+                    if last_err:
+                        skipped_reason = (
+                            f"material resolution failed for "
+                            f"{self._export_stem()!r}:\n{last_err}"
+                        )
+                    else:
+                        skipped_reason = (
+                            "material resolution failed for "
+                            f"{self._export_stem()!r} — check the D4Data path"
+                        )
 
         # Texture embedding additionally needs a texture_dir holding the
         # decoded .tex payloads. Resolution order:
@@ -338,6 +346,18 @@ class ExportWorker(QThread):
                     "every discovered animation failed to decode — "
                     "check the d4data path and CASC extraction"
                 )
+
+        # Loose-texture dump path: ``<model_dir>/textures/`` next to the
+        # GLB itself. Callers are responsible for choosing an
+        # ``output_path`` of the form ``<root>/<stem>/<stem>.<fmt>``
+        # (the GUI dialog and the CLI both go through
+        # :func:`resolve_export_paths` to enforce that layout). When
+        # textures aren't being embedded there's nothing to dump, so
+        # leave the dir un-set and the exporter skips the parallel write
+        # entirely — this also avoids littering exports with empty
+        # ``textures/`` folders.
+        if embed_textures and any_materials:
+            opts["loose_textures_dir"] = self._output_path.parent / "textures"
 
         self.progress.emit("Writing GLB…")
 
@@ -504,6 +524,10 @@ class ExportWorker(QThread):
         except MaterialResolutionError as exc:
             log.warning("Material resolution failed for %s: %s", stem, exc)
             self.progress.emit(f"Material resolution skipped: {exc}")
+            # Cached so the run() exception-handler can surface the
+            # specific file path that was missing to the user, instead
+            # of the generic "check the D4Data path" message.
+            self._last_material_error = str(exc)
             return
         mesh.materials = materials
 

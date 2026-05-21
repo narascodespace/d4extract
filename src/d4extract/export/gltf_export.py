@@ -196,6 +196,37 @@ def _auto_detect_transform(
     return "none"
 
 
+def resolve_export_paths(
+    output_root: Path, stem: str, fmt: str,
+) -> tuple[Path, Path, Path]:
+    """Resolve ``(model_dir, model_file, textures_dir)`` for one export.
+
+    Centralises the per-model folder layout so the GUI worker and the
+    CLI agree byte-for-byte. ``output_root`` is the user's chosen
+    parent directory (e.g. ``Exports/``); ``stem`` is the model name
+    (no extension); ``fmt`` is ``"glb"`` or ``"gltf"``. The resulting
+    layout is::
+
+        <output_root>/<stem>/<stem>.<fmt>
+        <output_root>/<stem>/textures/
+
+    ``model_dir`` and ``textures_dir`` are created on the fly so callers
+    don't repeat the ``mkdir(parents=True, exist_ok=True)`` dance. The
+    file itself is not touched — only the directories are pre-created.
+    """
+    fmt_clean = fmt.lstrip(".").lower()
+    if fmt_clean not in ("glb", "gltf"):
+        raise ValueError(
+            f"resolve_export_paths: fmt must be 'glb' or 'gltf', got {fmt!r}"
+        )
+    model_dir = Path(output_root) / stem
+    model_dir.mkdir(parents=True, exist_ok=True)
+    textures_dir = model_dir / "textures"
+    textures_dir.mkdir(parents=True, exist_ok=True)
+    model_file = model_dir / f"{stem}.{fmt_clean}"
+    return model_dir, model_file, textures_dir
+
+
 def _variant_block(variants: "dict | None") -> "dict | None":
     """Convert a discovered-variants dict into the sidecar ``variants`` block.
 
@@ -281,6 +312,7 @@ class GltfExporter:
         texture_dir: Path | None = None,
         embed_textures: bool = False,
         include_cloth: bool = False,
+        loose_textures_dir: Path | None = None,
     ):
         if coordinate_transform not in (*COORDINATE_TRANSFORMS, "auto"):
             raise ValueError(
@@ -297,6 +329,14 @@ class GltfExporter:
         self.write_materials_sidecar = write_materials_sidecar
         self.texture_dir = Path(texture_dir) if texture_dir else None
         self.embed_textures = embed_textures
+        # Optional parallel-output directory: when set, every decoded
+        # texture is also written as a loose .png next to the .glb, so
+        # users can inspect or remix the textures in other DCC tools.
+        # Embedding into the .glb is not affected — the loose copies are
+        # an additional deliverable, not a replacement.
+        self.loose_textures_dir = (
+            Path(loose_textures_dir) if loose_textures_dir else None
+        )
         # Drop physics-only cloth submeshes by default — see _build_gltf
         # for the filter. CLI exposes this as ``--include-cloth``.
         self.include_cloth = include_cloth
@@ -608,6 +648,7 @@ class GltfExporter:
                 texture_dir=self.texture_dir,
                 binary=binary, buffer_views=buffer_views,
                 images=images, textures=textures, samplers=samplers,
+                loose_textures_dir=self.loose_textures_dir,
             )
 
         # Materials: one per unique material_index, in the order seen.
@@ -911,6 +952,7 @@ class GltfExporter:
                 texture_dir=self.texture_dir,
                 binary=binary, buffer_views=buffer_views,
                 images=images, textures=textures, samplers=samplers,
+                loose_textures_dir=self.loose_textures_dir,
             )
         # COLOR_0 suppression — same rule as _build_gltf.
         suppress_all_colors = texture_pack is not None
@@ -2018,6 +2060,7 @@ class TexturePack:
         images: list[GltfImage],
         textures: list[GltfTexture],
         samplers: list[Sampler],
+        loose_textures_dir: Path | None = None,
     ):
         self.texture_dir = Path(texture_dir)
         self.binary = binary
@@ -2025,6 +2068,13 @@ class TexturePack:
         self.images = images
         self.textures = textures
         self.samplers = samplers
+        # When set, every embedded PNG is *also* written here as a loose
+        # file. Per-stem occupancy tracking de-duplicates name collisions
+        # between two materials that happen to share a .tex basename.
+        self.loose_textures_dir = (
+            Path(loose_textures_dir) if loose_textures_dir else None
+        )
+        self._loose_stems_used: dict[str, int] = {}
 
         # Default sampler — linear filtering, repeat wrap. glTF clients
         # treat ``sampler=None`` as "use default" but emitting an
@@ -2134,7 +2184,14 @@ class TexturePack:
 
         png = to_png_bytes(combined)
         name = f"MR_{(rough.sno_id if rough else 0)}_{(metal.sno_id if metal else 0)}"
-        idx = self._embed_png(png, name)
+        # No single source .tex for a combined metallicRoughness atlas —
+        # derive a loose stem from whichever source(s) we have so the
+        # user can spot which inputs fed the combine.
+        loose_parts = [
+            Path(t.path).stem for t in (rough, metal) if t is not None
+        ]
+        loose_stem = "MR_" + "_".join(loose_parts) if loose_parts else name
+        idx = self._embed_png(png, name, loose_stem=loose_stem)
         self._tex_index_cache[cache_key] = idx
         return idx
 
@@ -2190,6 +2247,7 @@ class TexturePack:
         if img is None:
             return None, "none"
 
+        ref_stem = Path(ref.path).stem
         if img.mode == "L":
             # Single-channel density mask — wrap with the material's
             # tint as RGB. Using base_color_factor.rgb (clamped to
@@ -2206,15 +2264,19 @@ class TexturePack:
             img_rgba = Image.merge("RGBA", (r_ch, g_ch, b_ch, img))
             png = to_png_bytes(img_rgba)
             name = f"HAIR_BC_{ref.sno_id}_tinted_{d4_mat.sno_id}"
+            # Tinted variants share a source .tex with the untinted
+            # version — disambiguate with a _tinted_<mat> suffix.
+            loose_stem = f"{ref_stem}_tinted_{d4_mat.sno_id}"
             sub_case = "tinted_mask"
         else:
             if img.mode != "RGBA":
                 img = img.convert("RGBA")
             png = to_png_bytes(img)
             name = f"HAIR_BC_{ref.sno_id}"
+            loose_stem = ref_stem
             sub_case = "rgba"
 
-        idx = self._embed_png(png, name)
+        idx = self._embed_png(png, name, loose_stem=loose_stem)
         self._tex_index_cache[cache_key] = idx
         self._tex_index_cache[("HAIR_KIND", ref.sno_id, d4_mat.sno_id)] = sub_case
         return idx, sub_case
@@ -2244,7 +2306,12 @@ class TexturePack:
                     ref.path, exc,
                 )
         png = to_png_bytes(img)
-        self._embed_png(png, image_name)
+        # Variant images come from the swap .tex itself — prefer that
+        # basename so the loose file matches what's on disk in d4data.
+        # Fall back to the structural ``variant_<kind>_<id>`` image name
+        # if the ref has no path for some reason.
+        loose_stem = Path(ref.path).stem if ref.path else image_name
+        self._embed_png(png, image_name, loose_stem=loose_stem)
         # _embed_png appends one entry to self.images — its index is the
         # last slot. (It also appends a Texture, unused by variants.)
         return len(self.images) - 1
@@ -2272,7 +2339,11 @@ class TexturePack:
 
         png = to_png_bytes(img)
         name = f"{role}_{ref.sno_id}"
-        idx = self._embed_png(png, name)
+        # The .tex's logical basename is the friendly stem the user
+        # recognises (e.g. ``S02_Boss_Torso_Color``) — embedded image
+        # ``name`` stays the structural ``ROLE_<sno>`` form for sidecar
+        # / extras lookups.
+        idx = self._embed_png(png, name, loose_stem=Path(ref.path).stem)
         self._tex_index_cache[cache_key] = idx
         return idx
 
@@ -2281,6 +2352,19 @@ class TexturePack:
         path = texture_payload_path(self.texture_dir, ref.path)
         if path in self._pil_cache:
             return self._pil_cache[path]
+        # Missing-on-disk payloads are a content-side quirk, not a bug:
+        # d4data routinely references textures that no longer ship in
+        # the current CASC archive (optional material slots, de-published
+        # variants, HED/BOD bodymarking lookups that miss). The
+        # downstream code falls back to a factor-only material in that
+        # case, so logging a WARNING per missing file just creates noise.
+        # ``decode_tex`` would raise ``TextureDecodeError`` anyway —
+        # short-circuiting here means we keep that path reserved for
+        # genuine decode failures (size mismatch, unsupported format).
+        if not path.is_file():
+            log.debug("texture skipped (no payload in CASC cache): %s", path)
+            self._pil_cache[path] = None
+            return None
         try:
             img = decode_tex(path, ref.width, ref.height, ref.format)
         except TextureDecodeError as exc:
@@ -2289,7 +2373,13 @@ class TexturePack:
         self._pil_cache[path] = img
         return img
 
-    def _embed_png(self, png: bytes, name: str) -> int:
+    def _embed_png(
+        self,
+        png: bytes,
+        name: str,
+        *,
+        loose_stem: str | None = None,
+    ) -> int:
         # 4-byte align before appending PNG bytes.
         if len(self.binary) % 4:
             self.binary += b"\x00" * (4 - len(self.binary) % 4)
@@ -2311,7 +2401,41 @@ class TexturePack:
         self.embedded_bytes += len(png)
         self._current_material_bytes += len(png)
         self.image_count += 1
+
+        # Parallel loose-PNG dump. The embedded path inside the .glb is
+        # untouched — these files are an additional artefact for users
+        # who want to inspect textures in other DCC tools.
+        if self.loose_textures_dir is not None:
+            self._write_loose_png(png, loose_stem or name)
+
         return tex_idx
+
+    def _write_loose_png(self, png: bytes, stem: str) -> None:
+        """Drop ``png`` to ``loose_textures_dir/<stem>.png``.
+
+        Two textures sharing the same .tex basename land in the same
+        export — append ``_1``, ``_2``, … so neither silently
+        overwrites the other. Repeated calls with the same stem in one
+        ``TexturePack`` lifetime use the running counter; we don't
+        re-probe the filesystem because the export owns the directory
+        for the duration of the call.
+        """
+        assert self.loose_textures_dir is not None
+        # Strip any leading directory components a caller might have
+        # passed accidentally — only the basename is meaningful as the
+        # loose-output stem.
+        clean_stem = Path(stem).stem or "texture"
+        seen = self._loose_stems_used.get(clean_stem, 0)
+        unique_stem = clean_stem if seen == 0 else f"{clean_stem}_{seen}"
+        self._loose_stems_used[clean_stem] = seen + 1
+        try:
+            self.loose_textures_dir.mkdir(parents=True, exist_ok=True)
+            (self.loose_textures_dir / f"{unique_stem}.png").write_bytes(png)
+        except OSError as exc:
+            log.warning(
+                "loose texture write skipped (%s.png): %s",
+                unique_stem, exc,
+            )
 
 
 def _first_ref_with_role(
@@ -2625,6 +2749,7 @@ def validate_glb_external(glb_path: Path) -> tuple[bool, str]:
     file failed.
     """
     import json
+    import os
     import shutil
     import subprocess
 
@@ -2637,10 +2762,20 @@ def validate_glb_external(glb_path: Path) -> tuple[bool, str]:
             "and ensure ``gltf_validator`` is on PATH."
         )
 
+    # CREATE_NO_WINDOW suppresses the per-child console flash that
+    # Windows would otherwise pop up when a --windowed PyInstaller .exe
+    # spawns a console child (gltf-validator). Windows-only; the
+    # attribute does not exist on POSIX, so look it up defensively.
+    no_window = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+    subprocess_kwargs: dict = (
+        {"creationflags": no_window} if os.name == "nt" else {}
+    )
+
     try:
         result = subprocess.run(
             [validator, "-o", str(glb_path)],
             capture_output=True, text=True, timeout=60,
+            **subprocess_kwargs,
         )
     except subprocess.TimeoutExpired:
         return False, "Validator timed out"

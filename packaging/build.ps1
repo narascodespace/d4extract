@@ -65,7 +65,7 @@ try {
             }
             Write-Host "Bundled rustydemon-cli.exe at dist\rustydemon\" -ForegroundColor Green
         } else {
-            Write-Host "No rustydemon binary found — skipping bundle. Pass -RustydemonExe or build it under rustydemon\target\release\." -ForegroundColor Yellow
+            Write-Host "No rustydemon binary found - skipping bundle. Pass -RustydemonExe or build it under rustydemon\target\release\." -ForegroundColor Yellow
         }
     }
 

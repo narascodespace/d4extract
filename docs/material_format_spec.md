@@ -317,21 +317,44 @@ in a separate stream. The 4× ratio between consecutive entries matches a
 | `Body_Translucency`           | 46         | 512²        | 131 072     | 0.5  | BC1 (sRGB)         |
 | `Body_skinMask`               | 9          | 2048²       | 2 097 152   | 0.5  | BC4 / BC1          |
 
-### 4.3 `eTexFormat` enum (inferred)
+### 4.3 `eTexFormat` enum (verified — current dispatch table)
 
-| Value | Inferred DXGI                  | Used for             |
-|-------|--------------------------------|----------------------|
-| 9     | `BC4_UNORM` (single channel)   | masks (skin/hair)    |
-| 41    | `BC4_UNORM`                    | rough / metal / AO   |
-| 42    | `BC5_UNORM`                    | tangent-space normals |
-| 46    | `BC1_UNORM_SRGB` or `BC7_UNORM_SRGB` | albedo, emissive, translucency |
+| Value | DXGI                              | bpp | Used for                                |
+|-------|-----------------------------------|-----|-----------------------------------------|
+| 9     | `BC4_UNORM`                       | 0.5 | masks (skin / hair)                     |
+| 10    | `BC1_UNORM_SRGB`                  | 0.5 | dye-luminance (character albedo, hair)  |
+| 41    | `BC4_UNORM`                       | 0.5 | rough / metal / AO                      |
+| 42    | `BC5_UNORM`                       | 1.0 | tangent-space normals (XY; Z derived)   |
+| 46    | `BC1_UNORM_SRGB`                  | 0.5 | albedo / emissive / translucency        |
+| 47    | `BC1_UNORM_SRGB` (1-bit alpha)    | 0.5 | cloth albedo with punch-through alpha   |
+| 49    | `BC1_UNORM_SRGB` *or* `BC3_UNORM_SRGB` | 0.5 / 1.0 | character Colour (BC1) and Emissive/Translucency/terrain (BC3); see note |
+| 50    | `BC7_UNORM_SRGB`                  | 1.0 | colour gradients, body markings, FX swatches |
 
 This enum is **not** the standard DXGI numbering (where BC1=71, BC4=80, BC5=83,
-BC7=98). It is a D4-internal table. Without the executable we cannot
-distinguish BC1 from BC7 directly — but the bpp ratio (0.5) is the same for
-both, and the visual result of decoding either is the same color image. A
-robust parser would attempt BC7 first and fall back to BC1 if the magic
-bytes do not validate.
+BC7=98). It is a D4-internal table.
+
+**Format 49 is dual-codec.** The same `eTexFormat = 49` value is reused for
+two physically distinct payload shapes:
+
+- Character-body *Colour* textures (e.g. `S02_Boss_*_Color`,
+  `Goatman_Brute_Cloth_Frac_color`) ship as BC1 — 0.5 bpp, classic BC1 endpoint
+  + index byte pattern, `dwMipMapLevelMin = 1` in the meta.
+- Character *Emissive* / *Translucency* and the layered-terrain BASE_COLOR
+  slots ship as BC3 — 1.0 bpp, BC3 alpha-endpoint + 6-byte index block at the
+  head of each 16-byte block, `dwMipMapLevelMin >= 2`.
+
+The decoder (`texture_parser._resolve_codec`) picks between the two by
+matching the payload byte count against the BC1 vs BC3 expected size — BC1 is
+exactly half the BC3 size for any given dimensions, and no real payload has
+landed on the BC1 size while actually being BC3.
+
+**Format 50 (BC7).** Verified against `bodyMarking_HED_bar023_stor` (1024² →
+1 048 576 bytes = 1 bpp) and 642 other textures that all match the
+`width × height` byte count. The first byte of each 16-byte block is the BC7
+mode selector — empty blocks lead with `0x01` (mode 0, all-zero partition).
+Pillow requires the DDS `DX10` extended header (not a 4-character FourCC) to
+decode BC7, which the wrapper handles automatically when
+`TexCodec.fourcc == b"DX10"`.
 
 ### 4.4 Implications
 
