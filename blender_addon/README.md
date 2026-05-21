@@ -3,7 +3,7 @@
 Imports Diablo IV models exported by **d4extract** (`.glb` + the
 `.materials.json` sidecar), rebuilds their PBR materials, forces
 dithered alpha, and exposes the in-game customization dropdowns —
-**Skin, Eyes, Makeup, Hair Color, Markings** — in the 3D View N-panel.
+**Skin, Hair Color** — in the 3D View N-panel.
 
 * Target: **Blender 5.1**
 * Minimum: **Blender 4.2** (the dithered-alpha `surface_render_method`
@@ -17,7 +17,7 @@ dithered alpha, and exposes the in-game customization dropdowns —
    python make_dist.py
    ```
 
-   This writes `dist/d4extract_blender-0.1.0.zip`.
+   This writes `dist/d4extract_blender-0.2.0.zip`.
 
 2. In Blender: **Edit > Preferences > Get Extensions > Install from
    Disk...** (the ▾ menu, top-right) and pick the zip. Enable it if it
@@ -112,16 +112,6 @@ the placeholder materials and fall back to that path on purpose.
   applies the **primary** colour (`rgbaColors[0]`) only; the secondary
   / tertiary tones are carried through the sidecar for a future
   duotone pass but are not yet composited.
-* **Eyes / Makeup / Markings** — image-swap dropdowns populated from
-  the sidecar's `variants` block. **Apply Variants** reassigns the
-  image datablock on the relevant texture node.
-
-Image-swap variant textures are embedded in the `.glb` at export time
-and loaded on import as `variant_<kind>_<id>` datablocks. An entry whose
-texture was not embedded (`image_index = -1` in the sidecar) is listed
-but its swap is skipped with a warning — re-export with `--with-textures`
-after `d4extract extract-textures-for` to make those textures available.
-
 The skin-tone palette is read from the player Actor definitions in the
 d4data dump (`Actor/<class>.acr.json` → `ptPlayerData.arSkinColorChoices`,
 identical across all classes) at export time; regenerate the checked-in
@@ -142,20 +132,19 @@ extract-hair-colors --d4data-path <d4data/json>`.
   multiplier — 1.0 = unchanged, lower = darker). Expect some divergence
   from in-game at the extremes of the palette; a manual-override "Skin
   Tuning" sub-panel is a planned follow-up.
-* The **Eyes** dropdown is normally empty. D4 eye colours are
-  parametric (iris/sclera RGBA + shader uniforms, no per-colour
-  texture); the exporter emits an empty block — this is expected, not
-  a bug.
-* The old **Material** (full-material persona swap) dropdown is gone
-  from the panel — the Hair Color picker took its slot. The deferred
-  full-material-swap feature is still not enumerable from the sampled
-  data; the sidecar keeps emitting an empty `material` block and the
-  `variant_material` property still exists internally, so the feature
-  can be picked back up later without a schema change.
-* **Makeup** and **Markings** are face overlays. Their textures are
-  embedded and swappable onto the `d4_makeup` / `d4_markings` nodes
-  (created on first apply), but they are **not** auto-composited over
-  the skin — wire them in manually if you need the full look.
+* **Eyes / Makeup / Markings are not supported.** Eye colour is a
+  parametric shader (iris/sclera RGBA + shader uniforms, no per-colour
+  texture) so an image-swap dropdown has nothing to bind to; makeup and
+  markings are shader overlays whose composition into the face material
+  is non-trivial. The sidecar may still emit `eyes` / `makeup` /
+  `markings` blocks for forward compatibility, but the addon ignores
+  them — re-add the dropdowns when the shader work is in.
+* The **Material** (full-material persona swap) dropdown is also hidden
+  from the panel. The deferred full-material-swap feature is not yet
+  enumerable from the sampled data; the sidecar keeps emitting an empty
+  `material` block and the `variant_material` property still exists
+  internally, so the feature can be picked back up later without a
+  schema change.
 * The importer is single-piece for this version; multi-piece skeleton
   assembly is a separate effort.
 
@@ -170,5 +159,5 @@ blender_addon/
 ├── operators/              import, setup-materials, set-dithered, apply-variants
 ├── panels/                 the "D4 Tools" N-panel
 ├── core/                   sidecar parsing, material builder, variant catalog
-└── make_dist.py            builds dist/d4extract_blender-0.1.0.zip
+└── make_dist.py            builds dist/d4extract_blender-0.2.0.zip
 ```

@@ -352,8 +352,7 @@ class ViewportWidget(QWidget):
         self._blender_notice = QLabel(self)
         self._blender_notice.setObjectName("blenderNotice")
         self._blender_notice.setText(
-            "Skin, hair, eye color, markings, and makeup "
-            "resolved through provided Blender Import addon."
+            "Skin and Hair resolved through provided Blender addon."
         )
         self._blender_notice.setWordWrap(True)
         self._blender_notice.setStyleSheet(

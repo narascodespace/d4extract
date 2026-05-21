@@ -94,16 +94,6 @@ class D4Props(bpy.types.PropertyGroup):
         ),
         items=_variant_items("skin"),
     )
-    variant_eyes: bpy.props.EnumProperty(
-        name="Eyes",
-        description="Eye colour",
-        items=_variant_items("eyes"),
-    )
-    variant_makeup: bpy.props.EnumProperty(
-        name="Makeup",
-        description="Face makeup overlay",
-        items=_variant_items("makeup"),
-    )
     variant_material: bpy.props.EnumProperty(
         name="Material",
         description="Full-material swap",
@@ -116,11 +106,6 @@ class D4Props(bpy.types.PropertyGroup):
             "chosen RGBA tint onto every hero_hair / hair_pbr_igc material"
         ),
         items=_variant_items("hair_color"),
-    )
-    variant_markings: bpy.props.EnumProperty(
-        name="Markings",
-        description="Body / face markings",
-        items=_variant_items("markings"),
     )
 
 

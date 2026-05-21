@@ -17,7 +17,7 @@ from pathlib import Path
 
 ADDON_DIR = Path(__file__).resolve().parent
 DIST_DIR = ADDON_DIR / "dist"
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 ZIP_NAME = f"d4extract_blender-{VERSION}.zip"
 
 # Never descend into these directories.

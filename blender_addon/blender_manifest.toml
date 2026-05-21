@@ -1,9 +1,9 @@
 schema_version = "1.0.0"
 
 id = "d4extract_blender"
-version = "0.1.0"
+version = "0.2.0"
 name = "D4Extract Importer"
-tagline = "Import and tune Diablo IV models exported by d4extract"
+tagline = "Import Diablo IV models and tune their Skin / Hair Color"
 maintainer = "diablo4analyzer"
 type = "add-on"
 

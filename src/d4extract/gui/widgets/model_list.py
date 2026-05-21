@@ -66,11 +66,14 @@ CATEGORY_PILLS: tuple[tuple[str, str | None], ...] = (
 )
 
 
-# Coalesce rapid typing so each keystroke in a 16ms window doesn't
-# spawn a worker. 16ms ≈ a 60Hz frame, which is well below the
-# perceptible response budget but still long enough to swallow bursts
-# from autorepeat / paste.
-_FILTER_DEBOUNCE_MS = 16
+# Coalesce rapid typing so each keystroke in the debounce window
+# doesn't spawn a worker. 200 ms is the conventional "type-to-search"
+# debounce — fast enough to feel responsive after the user pauses,
+# slow enough that a normal typing burst (humans average ~150 ms
+# between keystrokes) collapses into a single worker spawn rather
+# than firing N times. Going below ~100 ms reintroduces the
+# per-keystroke-spawn stall this constant exists to prevent.
+_FILTER_DEBOUNCE_MS = 200
 
 # Width (px) of the star gutter at the left of every row. The delegate
 # paints the star within this strip and shifts the path text right by
@@ -327,6 +330,15 @@ class ModelListWidget(QWidget):
         # catalog reloads.
         self._category_filtered: list[str] = []
         self._category_pattern: str | None = None
+        # Composed-row caches. Composing 60k entries (with the
+        # name-resolver callback per row + a label sort) costs hundreds
+        # of milliseconds on the main thread, so we pay it once per
+        # catalog / category / display-name change and reuse it for
+        # every keystroke that has to re-scan the whole pool.
+        # ``None`` means "stale, recompute on next access" — the lazy
+        # getters below own the build.
+        self._all_entries_composed: list[str] | None = None
+        self._category_filtered_composed: list[str] | None = None
         # FAVS pill state. Mutually exclusive with the category pills
         # via the shared QButtonGroup, but we still track it as a
         # separate flag because the candidate-set rule for favs is
@@ -489,6 +501,9 @@ class ModelListWidget(QWidget):
         paths = list(entries)
         self._all_entries = paths
         self._fuzzy_cache.clear()
+        # New catalog → every cached composed row points at the old
+        # roster. Force a rebuild on next access rather than diffing.
+        self._invalidate_composed_caches()
         self._recompute_category_filter()
         self._reapply_current_filter()
         self._list_stack.setCurrentWidget(self._list_view)
@@ -517,6 +532,9 @@ class ModelListWidget(QWidget):
         new rows would silently drop matches.
         """
         self._fuzzy_cache.clear()
+        # Composed caches hold the OLD labels; force a rebuild so the
+        # next access projects through the freshly-installed resolver.
+        self._invalidate_composed_caches()
         # _reapply_current_filter re-projects whichever subset is
         # currently visible (search results or the unfiltered category
         # pool) through the new resolver via the standard show paths.
@@ -587,13 +605,58 @@ class ModelListWidget(QWidget):
         rows.sort(key=lambda r: _row_label(r).lower())
         return rows
 
+    def _composed_all(self) -> list[str]:
+        """Composed-and-sorted rows for every catalog entry.
+
+        Cached: composition iterates ~60k entries through the name
+        resolver and then sorts by label, which would otherwise stall
+        the main thread on every empty-query transition. The cache is
+        invalidated on ``load_entries`` and ``refresh_display_names``;
+        nothing else changes what these rows would look like.
+        """
+        if self._all_entries_composed is None:
+            self._all_entries_composed = self._compose_rows(self._all_entries)
+        return self._all_entries_composed
+
+    def _composed_category_filtered(self) -> list[str]:
+        """Composed-and-sorted rows for the active category / favs pool.
+
+        Cached separately from ``_composed_all`` because category
+        regexes filter raw SNO paths, not composed rows, so we can't
+        derive one from the other without re-running the regex. Aliases
+        to ``_composed_all`` when no filter is active (ALL pill, FAVS
+        off) — the common case during ordinary browsing — so we avoid
+        recomposing the same 60k entries twice.
+        """
+        if self._category_filtered_composed is None:
+            no_filter_active = (
+                not self._favs_active and self._category_pattern is None
+            )
+            if no_filter_active:
+                # ALL pill, no favs filter → category_filtered is a copy
+                # of all_entries with identical contents. Alias rather
+                # than recomposing the same 60k entries.
+                self._category_filtered_composed = self._composed_all()
+            else:
+                self._category_filtered_composed = self._compose_rows(
+                    self._category_filtered,
+                )
+        return self._category_filtered_composed
+
+    def _invalidate_composed_caches(self) -> None:
+        """Clear both composed caches so the next access rebuilds them."""
+        self._all_entries_composed = None
+        self._category_filtered_composed = None
+
     # ------------------------------------------------------------------
     # Event handlers
     # ------------------------------------------------------------------
 
     def _on_filter_text_changed(self, text: str) -> None:
-        # Debounce: reset the 16ms window. Only the last keystroke in
-        # the window reaches _fire_debounced_filter and spawns a worker.
+        # Debounce: reset the window (see ``_FILTER_DEBOUNCE_MS``). Only
+        # the last keystroke in the window reaches
+        # ``_fire_debounced_filter`` and spawns a worker, so a typical
+        # 6-character query produces ONE worker spawn rather than six.
         self._pending_query = text
         self._debounce_timer.start()
 
@@ -706,6 +769,10 @@ class ModelListWidget(QWidget):
             self._category_filtered = [
                 e for e in self._all_entries if rx.search(e)
             ]
+        # Pool changed under us — the per-category composed cache is
+        # stale. (The full-catalog cache survives: ``_all_entries``
+        # didn't change.)
+        self._category_filtered_composed = None
         # The proxy's regex is used only by the no-query category
         # branch in _show_unfiltered to filter the full source. In
         # FAVS mode we hand it a pre-filtered source instead, so the
@@ -767,10 +834,12 @@ class ModelListWidget(QWidget):
 
         if candidates is None:
             # The worker scans composed rows so it can match against
-            # either the label or the SNO path half. Compose on demand
-            # so an unfiltered ALL+empty-query path doesn't pay the
-            # composition cost.
-            candidates = self._compose_rows(self._category_filtered)
+            # either the label or the SNO path half. The composed
+            # list is cached on the widget (built once per
+            # catalog/category/display-name change) so this access is
+            # O(1) on the hot keystroke path — recomposing 60k entries
+            # synchronously here was the dominant per-keystroke stall.
+            candidates = self._composed_category_filtered()
 
         self._spawn_filter_worker(query, candidates)
 
@@ -880,16 +949,14 @@ class ModelListWidget(QWidget):
             # to invent a regex that matches every favorite path, which
             # the FAVS axis exists specifically to avoid.
             self._source_model.setStringList(
-                self._compose_rows(self._category_filtered),
+                self._composed_category_filtered(),
             )
             self._proxy.set_category_regex(None)
         else:
             # Category-by-regex path: hand the proxy the full source
             # (composed) and let it drop rows whose SNO half doesn't
             # match the active pill.
-            self._source_model.setStringList(
-                self._compose_rows(self._all_entries),
-            )
+            self._source_model.setStringList(self._composed_all())
             self._proxy.set_category_regex(self._category_pattern)
 
         self._list_stack.setCurrentWidget(self._list_view)

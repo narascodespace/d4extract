@@ -44,22 +44,43 @@ explicitly.
 1. **Point d4extract at your Diablo IV install.** Steam (`…/steamapps/
    common/Diablo IV`) and Battle.net (`…/Diablo IV/`, contains
    `.build.info`) are both auto-detected on Windows.
-2. **Install d4data.** d4data is the
-   [community-maintained](https://github.com/blizzhackers/d4data)
-   metadata repo for the game. d4extract needs it to resolve model
-   and material references — without it, most browser features
-   silently degrade. The GUI's "Download for me" button fetches a
-   snapshot to `%LOCALAPPDATA%\d4extract\d4data\` automatically. From
-   the CLI:
-   ```bash
-   d4extract setup d4data
-   ```
+2. **Install d4data separately** — see
+   [§ d4data](#d4data--required-install-separately) below. d4extract
+   does **not** bundle or download it; you clone or download the ZIP
+   yourself and point the app at the folder.
 3. (Optional) **Load TACT keys** to decrypt unreleased / seasonal
    content. The base game extracts fine without them — see the TACT
    Keys section below.
 
 The GUI keeps these settings in QSettings; the CLI honours the same
 values and accepts overrides via flags or environment variables.
+
+### d4data — required, install separately
+
+d4extract needs the community-maintained metadata repository
+**d4data** to resolve model and material references. **d4extract
+does not bundle or download it for you** — d4data updates on every
+Diablo IV patch and is best maintained as a separate clone you
+control.
+
+1. Clone or download d4data from
+   https://github.com/blizzhackers/d4data. Either:
+
+   ```bash
+   git clone https://github.com/blizzhackers/d4data.git
+   ```
+
+   or download the ZIP from the GitHub page and extract it
+   somewhere stable (e.g. `%LOCALAPPDATA%\d4extract\d4data` or
+   next to your d4extract install).
+
+2. On first launch, d4extract will ask you to select the d4data
+   folder. Pick either the repository root or its `json/`
+   subdirectory — both work.
+
+3. To get newer game patch metadata later, `git pull` (or
+   re-download the ZIP) inside that folder. d4extract picks up the
+   new files immediately; no app reinstall needed.
 
 ## GUI quick tour
 
@@ -74,8 +95,8 @@ d4extract-gui
 - **Character Builder** — pick a class, then mix-and-match equipment
   pieces under one shared skeleton. Drag-to-rotate; export the
   combined outfit to a single glTF that imports as one character.
-- **File menu** — directory pickers, d4data install/re-download, and
-  TACT-key load/clear all live here.
+- **File menu** — directory pickers (game install, d4data folder)
+  and TACT-key load/clear all live here.
 
 The GUI exports to `.glb` (recommended) or `.gltf` + textures.
 Skinned models export with a full skeleton and `JOINTS_0` / `WEIGHTS_0`
@@ -94,15 +115,11 @@ d4extract export <meta.app> <payload.app> -o sorc.glb
 
 # Pull every texture referenced by a model in one batched call
 d4extract extract-textures-for "C:\Program Files (x86)\Diablo IV" warM_H01 \
-    --d4data-path %LOCALAPPDATA%\d4extract\d4data
+    --d4data-path C:\path\to\d4data
 
 # Animation extraction (meta + payload pair, with shared-payload alias resolution)
 d4extract extract-anim "C:\Program Files (x86)\Diablo IV" barM_HTH_nav_idle \
-    --d4data-path %LOCALAPPDATA%\d4extract\d4data
-
-# Setup helpers
-d4extract setup d4data            # download d4data into the default dir
-d4extract setup d4data --ref v1.7 # pin to a specific d4data tag
+    --d4data-path C:\path\to\d4data
 ```
 
 Useful `export` flags:
@@ -171,7 +188,7 @@ src/d4extract/
     export/       # glTF writer
     formats/      # .app / .ani / .tex / material parsers
     gui/          # PySide6 desktop app
-    setup/        # Headless d4data downloader
+    setup/        # Headless d4data path validation
 blender_addon/    # Blender 4.2+ add-on (separate GPL-3.0 licence)
 packaging/        # PyInstaller spec + build scripts
 docs/             # Format specs, research notes, roadmap

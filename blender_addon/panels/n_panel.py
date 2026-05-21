@@ -51,12 +51,9 @@ class D4_PT_main(bpy.types.Panel):
 
         col = box.column(align=True)
         col.prop(props, "variant_skin")
-        col.prop(props, "variant_eyes")
-        col.prop(props, "variant_makeup")
-        # Hair Color replaced the (deferred) Material dropdown in this
-        # slot; the variant_material property still exists, just hidden.
+        # variant_material is still defined on the PropertyGroup for the
+        # deferred full-material swap, but stays hidden until it ships.
         col.prop(props, "variant_hair_color")
-        col.prop(props, "variant_markings")
 
         row = box.row()
         row.scale_y = 1.3

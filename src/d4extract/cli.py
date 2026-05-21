@@ -1300,62 +1300,6 @@ def extract_hair_colors_cmd(d4data_path: Path, out_path: Path | None) -> None:
         )
 
 
-@cli.group()
-def setup() -> None:
-    """First-run setup helpers (d4data fetcher, etc.)."""
-
-
-@setup.command("d4data")
-@click.option(
-    "--target",
-    type=click.Path(path_type=Path),
-    default=None,
-    help="Where to install. Defaults to %LOCALAPPDATA%/d4extract/d4data.",
-)
-@click.option(
-    "--ref",
-    default="master",
-    show_default=True,
-    help="Branch or tag to fetch from the d4data repo.",
-)
-def setup_d4data(target: Path | None, ref: str) -> None:
-    """Download the d4data community metadata repo.
-
-    The fetch is atomic — an existing install is only replaced once
-    the new copy has been validated. Run again after a Diablo IV
-    patch to pick up the latest community updates.
-    """
-    from d4extract.setup import (
-        D4DataInstallError, D4DataSource,
-        download_and_install_d4data,
-    )
-
-    def _progress(done: int, total: int | None, stage: str) -> None:
-        # \r updates a single line so the terminal stays clean. The
-        # ``rich`` console handles cursor positioning correctly even
-        # when stderr is being redirected.
-        if total:
-            pct = (done * 100) // total
-            console.print(f"  {stage}: {pct}%", end="\r")
-        else:
-            console.print(f"  {stage}: {done // 1024} KiB", end="\r")
-
-    src = D4DataSource(ref=ref)
-    try:
-        installed = download_and_install_d4data(
-            target_dir=target, source=src, progress=_progress,
-        )
-    except D4DataInstallError as exc:
-        # Newline so the failure message isn't written on top of the
-        # last \r-updated progress line.
-        console.print()
-        err_console.print(f"[red]d4data install failed:[/red] {exc}")
-        raise SystemExit(1)
-
-    console.print()  # newline after \r-updated progress line
-    console.print(f"[green]d4data installed at:[/green] {installed}")
-
-
 def _format_size(size_bytes: int) -> str:
     """Human-readable file size."""
     for unit in ("B", "KB", "MB", "GB"):

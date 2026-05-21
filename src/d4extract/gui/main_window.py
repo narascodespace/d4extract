@@ -376,7 +376,7 @@ class D4ExportWindow(QMainWindow):
         label = QLabel(
             "d4data not configured — model and material references "
             "will not resolve. Use <b>File → Set d4data Folder…</b> "
-            "or <b>Re-download d4data</b>.",
+            "to point d4extract at your d4data checkout.",
             frame,
         )
         label.setWordWrap(True)
@@ -494,12 +494,6 @@ class D4ExportWindow(QMainWindow):
             self._on_menu_set_d4data_folder,
         )
         file_menu.addAction(d4data_folder_action)
-
-        redownload_action = QAction("Re-download d4data", self)
-        redownload_action.triggered.connect(
-            self._on_menu_redownload_d4data,
-        )
-        file_menu.addAction(redownload_action)
 
         tact_load_action = QAction("Load TACT Keys…", self)
         tact_load_action.triggered.connect(self._on_menu_load_tact_keys)
@@ -1584,14 +1578,16 @@ class D4ExportWindow(QMainWindow):
     def _on_menu_set_d4data_folder(self) -> None:
         """Pick an existing d4data checkout and persist it.
 
-        Unlike the older ``Set D4Data Path…`` action (which simply
-        accepts whatever directory the user picks), this one validates
-        via :func:`d4extract.setup.is_d4data_dir` so the user can't
-        save a parent or sibling directory by accident — the kind of
-        misconfiguration that leads to silent material-resolution
-        failures elsewhere in the app.
+        Mirrors :class:`D4DataCard`'s validation + normalisation:
+        :func:`is_d4data_dir` accepts either the repo root or the
+        ``json/`` subdirectory, and :func:`resolve_d4data_json_path`
+        collapses both to the single internal form the rest of the
+        codebase consumes. That way the menu and card paths can't
+        diverge over which folder shape gets stored.
         """
-        from d4extract.setup import is_d4data_dir
+        from d4extract.setup import (
+            D4DataInstallError, is_d4data_dir, resolve_d4data_json_path,
+        )
 
         existing = self._settings.d4data_path()
         start_dir = str(existing) if existing is not None else str(Path.home())
@@ -1604,42 +1600,23 @@ class D4ExportWindow(QMainWindow):
         if not is_d4data_dir(path):
             QMessageBox.warning(
                 self, "d4data",
-                f"{path}\n\nThis doesn't look like a d4data checkout — "
-                "it should contain a 'base/' subdirectory. Pick the "
-                "repo root, not its parent.",
+                f"{path}\n\nThis folder doesn't look like a d4data "
+                "checkout — it should contain a 'json/' subdirectory "
+                "(the repo root) or be the 'json/' subdirectory itself.",
             )
             return
-        self._settings.set_d4data_path(path)
-        self.statusBar().showMessage(f"d4data: set to {path}")
+        try:
+            normalised = resolve_d4data_json_path(path)
+        except D4DataInstallError as exc:
+            QMessageBox.warning(self, "d4data", str(exc))
+            return
+        self._settings.set_d4data_path(normalised)
+        self.statusBar().showMessage(f"d4data: set to {normalised}")
         # Refresh dependent state (banner + builder + indices) the same
         # way the card's signal would.
-        self._on_d4data_ready(path)
+        self._on_d4data_ready(normalised)
         if hasattr(self, "_refresh_d4data_banner"):
             self._refresh_d4data_banner()
-
-    def _on_menu_redownload_d4data(self) -> None:
-        """Confirm, then re-run the download worker against the default dir.
-
-        Useful when Blizzard ships a patch and the community updates
-        d4data: the user clicks once instead of finding the cached
-        zipball location and clearing it manually. The current install
-        (if any) is left in place by the worker and atomically
-        replaced on success.
-        """
-        from d4extract.setup import default_d4data_dir
-
-        target = default_d4data_dir()
-        if QMessageBox.question(
-            self, "Re-download d4data",
-            f"Fetch the latest d4data snapshot and install to:\n\n{target}\n\n"
-            "Your existing copy will be replaced atomically once the "
-            "download completes successfully.",
-        ) != QMessageBox.Yes:
-            return
-        # Route through the existing card — it owns the QProgressBar,
-        # the worker lifecycle, and the d4data_ready emission.
-        self._stack.setCurrentIndex(PAGE_D4DATA)
-        self._d4data_card.start_download()
 
     def _on_menu_load_tact_keys(self) -> None:
         """Pick a wowdev-format TACT key file and cache it locally.

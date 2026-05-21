@@ -10,8 +10,9 @@ Three mechanics, one button:
   ``HairColorDefinition``'s primary RGBA tint is written into the
   ``d4_hair_tint`` Multiply node (inserted on demand by
   :func:`material_builder.setup_hair_color_chain`) on every hair material.
-* **eyes / makeup / material / markings** are ``image_swap`` — the
-  variant image datablock is reassigned onto the role's texture node.
+* **material** is ``image_swap`` — the variant image datablock is
+  reassigned onto the role's texture node. (Hidden from the panel
+  until the full-material swap feature ships.)
 """
 
 from __future__ import annotations
@@ -27,20 +28,16 @@ from ..core.material_builder import NODE_ROLE_PROP
 
 # Roles whose swapped image must be sampled as raw data, not sRGB.
 _NONCOLOR_ROLES = frozenset({
-    "NORMAL", "ROUGHNESS", "METALLIC", "AO", "MARKINGS",
+    "NORMAL", "ROUGHNESS", "METALLIC", "AO",
     "DYE_MASK", "DYE_RAMP", "DYE_MASK_2", "SKIN_MASK",
 })
 
-# Variant roles with no PBR socket of their own — apply makes a labelled,
-# unconnected node for them on demand.
-_LAZY_ROLES = frozenset({"MAKEUP", "MARKINGS"})
-
 # Image-swap categories, in apply order. Skin is handled separately.
-_IMAGE_KINDS = ("eyes", "makeup", "material", "markings")
+_IMAGE_KINDS = ("material",)
 
 
 class D4_OT_apply_variants(bpy.types.Operator):
-    """Apply the selected Skin / Eyes / Makeup / Hair Color / Markings variants"""
+    """Apply the selected Skin / Hair Color variants"""
 
     bl_idname = "d4.apply_variants"
     bl_label = "Apply Variants"
@@ -77,12 +74,9 @@ class D4_OT_apply_variants(bpy.types.Operator):
             applied += n
             warnings.extend(w)
 
-        # ── eyes / makeup / material / markings: image swap ───────
+        # ── material: image swap (deferred, hidden from the panel) ───────
         image_picks = {
-            "eyes": props.variant_eyes,
-            "makeup": props.variant_makeup,
             "material": props.variant_material,
-            "markings": props.variant_markings,
         }
         for kind in _IMAGE_KINDS:
             pick = image_picks[kind]
@@ -304,14 +298,6 @@ def _find_or_make_role_node(
     for node in nt.nodes:
         if node.type == "TEX_IMAGE" and node.get(NODE_ROLE_PROP) == role:
             return node
-
-    if role in _LAZY_ROLES:
-        node = nt.nodes.new("ShaderNodeTexImage")
-        node.name = f"d4_{role.lower()}"
-        node.label = f"d4_{role.lower()}"
-        node[NODE_ROLE_PROP] = role
-        node.location = (-1100, 350 if role == "MAKEUP" else 30)
-        return node
     return None
 
 
