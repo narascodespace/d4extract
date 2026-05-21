@@ -1,5 +1,9 @@
 # d4extract
 
+This is a vibe coded slopfest but it works, for now. I don't have any more time to dedicate to the project so anyone who wants to fork this and take it to the finish line feel free. I will not be responding to issues, etc.
+
+There will be animation decoder and texture decoder errors as I couldn't figure out how to read everything, but things should still export properly regardless of the errors. There are still some skin material bugs that the blender addon does not fix - not sure why, but since the textures definitely get extracted you can wire them up in the shader editor on your own as you like.
+
 Extract Diablo IV character, weapon, and environment models out of the
 game's CASC archive and convert them to glTF for use in Blender,
 Maya, Unreal, or anywhere else that consumes the format.
@@ -11,30 +15,14 @@ The project ships three pieces:
   character outfits, and exporting to `.glb` / `.gltf`.
 - **`d4extract`** — a Click CLI that exposes the same primitives for
   scripts, CI, and batch jobs.
-- **`d4extract_blender`** — a Blender 4.2+ add-on that imports the
+- **`d4extract_blender`** — a Blender 5.1+ add-on that imports the
   exported `.glb` files with the right material setup
   (PBR + alpha + dither + parametric variants like skin/hair colour).
 
 ## Requirements
 
-- Python 3.11+ (3.14 is what development runs on)
-- [rustydemon-cli](https://github.com/HoldMyBeer-gg/rustydemon) — the
-  Rust CASC reader d4extract drives under the hood. Build it once and
-  put it on your `PATH`, or set `D4EXTRACT_RUSTYDEMON` to the binary.
 - A local Diablo IV installation (Steam or Battle.net)
-- For the Blender side: Blender 4.2 or newer
-
-## Install
-
-From a checkout:
-
-```bash
-pip install -e ".[dev]"
-```
-
-That gives you both the `d4extract` and `d4extract-gui` console
-scripts. The Blender add-on is built separately — see
-`blender_addon/README.md`.
+- For the Blender side: Blender 5.1 or newer
 
 ## First-run setup
 
@@ -158,7 +146,7 @@ skipped).
 
 ## Blender add-on
 
-`blender_addon/` is a self-contained Blender 4.2+ add-on for
+`blender_addon/` is a self-contained Blender 5.1+ add-on for
 importing the `.glb` files d4extract produces. It hooks the standard
 glTF importer to:
 
@@ -169,14 +157,7 @@ glTF importer to:
 - Swap "armor skin" material slots to the body's skin material so
   exposed-skin surfaces match the rest of the character
 
-Build a `.zip` you can drop into Blender's add-on installer:
-
-```bash
-cd blender_addon
-python make_dist.py
-```
-
-Output lands at `blender_addon/dist/d4extract_blender-<version>.zip`.
+The addon is included in the releases section.
 
 ## Project layout
 
@@ -189,22 +170,13 @@ src/d4extract/
     formats/      # .app / .ani / .tex / material parsers
     gui/          # PySide6 desktop app
     setup/        # Headless d4data path validation
-blender_addon/    # Blender 4.2+ add-on (separate GPL-3.0 licence)
+blender_addon/    # Blender 5.1+ add-on
 packaging/        # PyInstaller spec + build scripts
 docs/             # Format specs, research notes, roadmap
 tests/            # pytest suite (Qt-free)
 ```
 
-## Project status
-
-See [`docs/d4extract_roadmap.md`](docs/d4extract_roadmap.md) for the
-phase plan and what's currently in flight.
-
 ## Licence
-
-- d4extract (this repo): MIT — see [`LICENSE`](LICENSE)
-- `blender_addon/`: GPL-3.0 (Blender add-on requirement) — see
-  `blender_addon/blender_manifest.toml`
 - TACT keys and any Diablo IV game assets you extract belong to
   Blizzard. d4extract is a tool; what you do with the output is on
   you.
