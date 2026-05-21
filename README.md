@@ -54,22 +54,17 @@ Diablo IV patch and is best maintained as a separate clone you
 control.
 
 1. Clone or download d4data from
-   https://github.com/blizzhackers/d4data. Either:
+   [https://github.com/blizzhackers/d4data](https://github.com/DiabloTools/d4data).
 
-   ```bash
-   git clone https://github.com/blizzhackers/d4data.git
-   ```
-
-   or download the ZIP from the GitHub page and extract it
+   Download the ZIP from the GitHub page and extract it
    somewhere stable (e.g. `%LOCALAPPDATA%\d4extract\d4data` or
    next to your d4extract install).
 
 2. On first launch, d4extract will ask you to select the d4data
-   folder. Pick either the repository root or its `json/`
-   subdirectory — both work.
+   folder. Pick its `json/`
+   subdirectory.
 
-3. To get newer game patch metadata later, `git pull` (or
-   re-download the ZIP) inside that folder. d4extract picks up the
+3. To get newer game patch metadata later, re-download the ZIP and extract inside that folder. d4extract picks up the
    new files immediately; no app reinstall needed.
 
 ## GUI quick tour
