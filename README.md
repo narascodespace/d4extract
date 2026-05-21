@@ -4,6 +4,8 @@ This is a vibe coded slopfest but it works, for now. I don't have any more time 
 
 There will be animation decoder and texture decoder errors as I couldn't figure out how to read everything, but things should still export properly regardless of the errors. There are still some skin material bugs that the blender addon does not fix - not sure why, but since the textures definitely get extracted you can wire them up in the shader editor on your own as you like.
 
+Anything in the game that is primarily composed of VFX shaders (banshees for example) will just not be extracted all that well. And weapons, etc. those effects are just not happening - again, Claude did all this on its own with MEGAGOOD prompting on my part but I feel like if someone out there wants to take it even further they could properly read the shaders.
+
 Extract Diablo IV character, weapon, and environment models out of the
 game's CASC archive and convert them to glTF for use in Blender,
 Maya, Unreal, or anywhere else that consumes the format.
